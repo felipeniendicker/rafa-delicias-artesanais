@@ -1,0 +1,27 @@
+# Sistema operacional
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Arquivos temporários
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+~$*
+
+# IDEs e editores
+.vscode/
+.idea/
+*.code-workspace
+
+# Cache local
+.cache/

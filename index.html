@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta
+    name="description"
+    content="Rafa Delícias Artesanais: mini loja online com pães, bolos, tortas, cookies e encomendas artesanais com finalização pelo WhatsApp."
+  >
+  <title>Rafa Delícias Artesanais | Pedidos artesanais pelo WhatsApp</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Serif+Text:ital@0;1&family=Manrope:wght@400;500;700;800&display=swap"
+    rel="stylesheet"
+  >
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <!-- Cabeçalho principal com navegação funcional para facilitar a exploração da loja -->
+  <header class="hero">
+    <nav class="topbar container" aria-label="Navegação principal">
+      <a class="brand" href="#inicio">Rafa Delícias Artesanais</a>
+      <div class="topbar-actions">
+        <div class="nav-links">
+          <a class="nav-link" href="#inicio">Início</a>
+          <a class="nav-link" href="#categorias">Cardápio</a>
+          <a class="nav-link" href="#carrinho">Carrinho</a>
+          <a class="nav-link" href="#contato">Contato</a>
+        </div>
+        <a class="nav-link nav-cart-link" href="#carrinho" aria-label="Ir para a seção do carrinho">
+          Pedido
+          <span class="cart-count" id="cartCount" aria-live="polite">0</span>
+        </a>
+      </div>
+    </nav>
+
+    <div class="hero-content container" id="inicio">
+      <div class="hero-copy">
+        <p class="eyebrow">Mini loja online artesanal</p>
+        <h1>Rafa Delícias Artesanais</h1>
+        <p class="slogan">
+          Feito em casa, com carinho e ingredientes selecionados.
+        </p>
+        <p class="hero-text">
+          Uma seleção especial de receitas artesanais para deixar o café da manhã,
+          o lanche da tarde e os momentos em família ainda mais acolhedores.
+        </p>
+        <button class="primary-button" id="menuButton" type="button">
+          Ver cardápio
+        </button>
+      </div>
+
+      <!-- Destaque visual da marca para dar personalidade à abertura -->
+      <aside class="hero-card" aria-label="Destaques da Rafa Delícias Artesanais">
+        <span class="badge">Receitas fresquinhas</span>
+        <h2>Sabores que lembram casa</h2>
+        <p>
+          Produção cuidadosa, massa bem trabalhada e aquele toque artesanal que
+          transforma produtos simples em experiências especiais.
+        </p>
+        <ul class="hero-highlights">
+          <li>Forno artesanal</li>
+          <li>Ingredientes selecionados</li>
+          <li>Visual delicado e profissional</li>
+        </ul>
+      </aside>
+    </div>
+  </header>
+
+  <main>
+    <!-- Seção curta de apresentação da marca -->
+    <section class="about container" aria-labelledby="sobre-title">
+      <div class="section-heading">
+        <p class="section-kicker">Nossa essência</p>
+        <h2 id="sobre-title">Uma confeitaria artesanal feita para aquecer o dia</h2>
+      </div>
+      <p class="about-text">
+        A Rafa Delícias Artesanais nasce com a proposta de unir sabor, delicadeza
+        e uma apresentação acolhedora. Nesta vitrine, reunimos categorias
+        especiais para apresentar os principais produtos da loja.
+      </p>
+    </section>
+
+    <!-- Explica de forma direta o fluxo do pedido para deixar a experiência mais clara -->
+    <section class="how-it-works container" aria-labelledby="como-funciona-title">
+      <div class="section-heading">
+        <p class="section-kicker">Como funciona</p>
+        <h2 id="como-funciona-title">Pequeno passo a passo para fazer seu pedido</h2>
+      </div>
+
+      <div class="steps-grid">
+        <article class="step-card">
+          <span class="step-index">01</span>
+          <h3>Escolha seus produtos</h3>
+          <p>Explore o cardápio, veja as categorias e escolha os sabores que mais combinam com você.</p>
+        </article>
+
+        <article class="step-card">
+          <span class="step-index">02</span>
+          <h3>Adicione ao pedido</h3>
+          <p>Monte seu carrinho com calma, ajustando quantidades e opções disponíveis quando necessário.</p>
+        </article>
+
+        <article class="step-card">
+          <span class="step-index">03</span>
+          <h3>Finalize pelo WhatsApp</h3>
+          <p>Com um clique, seu pedido é enviado com a lista completa para atendimento mais rápido.</p>
+        </article>
+
+        <article class="step-card">
+          <span class="step-index">04</span>
+          <h3>Combine entrega ou retirada</h3>
+          <p>Depois do envio, é só confirmar disponibilidade, horário e a melhor forma de receber.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- Vitrine organizada por categoria, pronta para futura integração com carrinho em JavaScript -->
+    <section class="categories container" id="categorias" aria-labelledby="categorias-title">
+      <div class="section-heading">
+        <p class="section-kicker">Categorias iniciais</p>
+        <h2 id="categorias-title">Escolha o tipo de delícia que combina com você</h2>
+      </div>
+
+      <div class="catalog-sections">
+        <!-- Cada bloco de categoria agrupa produtos e facilita futuras buscas, filtros e integração com carrinho -->
+        <article class="catalog-section">
+          <div class="category-header">
+            <span class="category-index">01</span>
+            <div>
+              <h3>Pães artesanais</h3>
+              <p>Receitas clássicas com fermentação caprichada e casquinha dourada.</p>
+            </div>
+          </div>
+
+          <div class="product-grid">
+            <article class="product-card">
+              <div class="product-image">
+                <!-- Adicionar depois: imagens/pao-artesanal.jpg -->
+                <img src="./imagens/pao-artesanal.jpg" alt="Pão Artesanal Tradicional da Rafa Delícias Artesanais" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';">
+                <div class="image-placeholder" aria-hidden="true">
+                  <span>Adicionar pao-artesanal.jpg</span>
+                </div>
+              </div>
+              <div class="product-content">
+                <h4>Pão Artesanal Tradicional</h4>
+                <p>Massa leve, casca dourada e sabor acolhedor para qualquer hora do dia.</p>
+                <div class="product-meta">
+                  <strong class="product-price">R$ 18,00</strong>
+                  <button class="product-button add-to-cart-button" type="button" data-id="pao-artesanal-tradicional" data-nome="Pão Artesanal Tradicional" data-preco="18.00">Adicionar ao pedido</button>
+                </div>
+              </div>
+            </article>
+          </div>
+        </article>
+
+        <article class="catalog-section">
+          <div class="category-header">
+            <span class="category-index">02</span>
+            <div>
+              <h3>Pães recheados</h3>
+              <p>Massas macias com recheios generosos para lanches mais especiais.</p>
+            </div>
+          </div>
+
+          <div class="product-grid">
+            <article class="product-card">
+              <div class="product-image">
+                <!-- Adicionar depois: imagens/pao-presunto-queijo.jpg -->
+                <img src="./imagens/pao-presunto-queijo.jpg" alt="Pão recheado de Presunto e Queijo da Rafa Delícias Artesanais" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';">
+                <div class="image-placeholder" aria-hidden="true">
+                  <span>Adicionar pao-presunto-queijo.jpg</span>
+                </div>
+              </div>
+              <div class="product-content">
+                <h4>Presunto e Queijo</h4>
+                <p>Combinação clássica com recheio cremoso e massa dourada por fora.</p>
+                <div class="product-meta">
+                  <strong class="product-price">R$ 25,00</strong>
+                  <button class="product-button add-to-cart-button" type="button" data-id="pao-recheado-presunto-queijo" data-nome="Presunto e Queijo" data-preco="25.00">Adicionar ao pedido</button>
+                </div>
+              </div>
+            </article>
+
+            <article class="product-card">
+              <div class="product-image">
+                <!-- Adicionar depois: imagens/pao-calabresa.jpg -->
+                <img src="./imagens/pao-calabresa.jpg" alt="Pão recheado de Calabresa da Rafa Delícias Artesanais" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';">
+                <div class="image-placeholder" aria-hidden="true">
+                  <span>Adicionar pao-calabresa.jpg</span>
+                </div>
+              </div>
+              <div class="product-content">
+                <h4>Calabresa</h4>
+                <p>Recheio marcante e saboroso em uma massa macia e artesanal.</p>
+                <div class="product-meta">
+                  <strong class="product-price">R$ 25,00</strong>
+                  <button class="product-button add-to-cart-button" type="button" data-id="pao-recheado-calabresa" data-nome="Calabresa" data-preco="25.00">Adicionar ao pedido</button>
+                </div>
+              </div>
+            </article>
+
+            <article class="product-card">
+              <div class="product-image">
+                <!-- Adicionar depois: imagens/pao-goiabada.jpg -->
+                <img src="./imagens/pao-goiabada.jpg" alt="Pão recheado de Goiabada da Rafa Delícias Artesanais" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';">
+                <div class="image-placeholder" aria-hidden="true">
+                  <span>Adicionar pao-goiabada.jpg</span>
+                </div>
+              </div>
+              <div class="product-content">
+                <h4>Goiabada</h4>
+                <p>Doçura equilibrada para quem gosta de um toque afetivo no lanche.</p>
+                <div class="product-meta">
+                  <strong class="product-price">R$ 25,00</strong>
+                  <button class="product-button add-to-cart-button" type="button" data-id="pao-recheado-goiabada" data-nome="Goiabada" data-preco="25.00">Adicionar ao pedido</button>
+                </div>
+              </div>
+            </article>
+
+            <article class="product-card">
+              <div class="product-image">
+                <!-- Adicionar depois: imagens/pao-coco.jpg -->
+                <img src="./imagens/pao-coco.jpg" alt="Pão recheado de Coco da Rafa Delícias Artesanais" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';">
+                <div class="image-placeholder" aria-hidden="true">
+                  <span>Adicionar pao-coco.jpg</span>
+                </div>
+              </div>
+              <div class="product-content">
+                <h4>Coco</h4>
+                <p>Sabor delicado com textura macia e perfume suave de coco fresco.</p>
+                <div class="product-meta">
+                  <strong class="product-price">R$ 25,00</strong>
+                  <button class="product-button add-to-cart-button" type="button" data-id="pao-recheado-coco" data-nome="Coco" data-preco="25.00">Adicionar ao pedido</button>
+                </div>
+              </div>
+            </article>
+
+            <article class="product-card">
+              <div class="product-image">
+                <!-- Adicionar depois: imagens/pao-delicia.jpg -->
+                <img src="./imagens/pao-delicia.jpg" alt="Pão Delícia de Parmesão da Rafa Delícias Artesanais" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';">
+                <div class="image-placeholder" aria-hidden="true">
+                  <span>Adicionar pao-delicia.jpg</span>
+                </div>
+              </div>
+              <div class="product-content">
+                <h4>Pão Delícia (Parmesão)</h4>
+                <p>Versão leve e muito macia com cobertura delicada e toque de parmesão.</p>
+                <div class="product-meta">
+                  <strong class="product-price">R$ 25,00</strong>
+                  <button class="product-button add-to-cart-button" type="button" data-id="pao-delicia-parmesao" data-nome="Pão Delícia (Parmesão)" data-preco="25.00">Adicionar ao pedido</button>
+                </div>
+              </div>
+            </article>
+          </div>
+        </article>
+
+        <article class="catalog-section">
+          <div class="category-header">
+            <span class="category-index">03</span>
+            <div>
+              <h3>Bolos caseiros</h3>
+              <p>Sabores aconchegantes, perfeitos para café fresco e mesa posta.</p>
+            </div>
+          </div>
+
+          <div class="product-grid">
+            <article class="product-card">
+              <div class="product-image">
+                <!-- Adicionar depois: imagens/bolo-chocolate.jpg -->
+                <img src="./imagens/bolo-chocolate.jpg" alt="Bolo caseiro de Chocolate da Rafa Delícias Artesanais" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';">
+                <div class="image-placeholder" aria-hidden="true">
+                  <span>Adicionar bolo-chocolate.jpg</span>
+                </div>
+              </div>
+              <div class="product-content">
+                <h4>Bolo de Chocolate</h4>
+                <p>Massa macia e sabor intenso para um café da tarde especial.</p>
+                <label class="product-option">
+                  <input type="checkbox" class="product-option-checkbox" data-option-label="com cobertura" data-option-price="5">
+                  <span>Adicionar cobertura (+ R$ 5,00)</span>
+                </label>
+                <div class="product-meta">
+                  <strong class="product-price">R$ 30,00</strong>
+                  <button class="product-button add-to-cart-button" type="button" data-id="bolo-caseiro-chocolate" data-nome="Bolo de Chocolate" data-preco="30.00">Adicionar ao pedido</button>
+                </div>
+              </div>
+            </article>
+
+            <article class="product-card">
+              <div class="product-image">
+                <!-- Adicionar depois: imagens/bolo-cenoura.jpg -->
+                <img src="./imagens/bolo-cenoura.jpg" alt="Bolo caseiro de Cenoura da Rafa Delícias Artesanais" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';">
+                <div class="image-placeholder" aria-hidden="true">
+                  <span>Adicionar bolo-cenoura.jpg</span>
+                </div>
+              </div>
+              <div class="product-content">
+                <h4>Bolo de Cenoura</h4>
+                <p>Massa fofinha e sabor clássico para acompanhar um café fresquinho.</p>
+                <label class="product-option">
+                  <input type="checkbox" class="product-option-checkbox" data-option-label="com cobertura" data-option-price="5">
+                  <span>Adicionar cobertura (+ R$ 5,00)</span>
+                </label>
+                <div class="product-meta">
+                  <strong class="product-price">R$ 30,00</strong>
+                  <button class="product-button add-to-cart-button" type="button" data-id="bolo-caseiro-cenoura" data-nome="Bolo de Cenoura" data-preco="30.00">Adicionar ao pedido</button>
+                </div>
+              </div>
+            </article>
+
+            <article class="product-card">
+              <div class="product-image">
+                <!-- Adicionar depois: imagens/bolo-limao.jpg -->
+                <img src="./imagens/bolo-limao.jpg" alt="Bolo caseiro de Limão da Rafa Delícias Artesanais" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';">
+                <div class="image-placeholder" aria-hidden="true">
+                  <span>Adicionar bolo-limao.jpg</span>
+                </div>
+              </div>
+              <div class="product-content">
+                <h4>Bolo de Limão</h4>
+                <p>Sabor fresco e equilibrado com final leve e aroma cítrico.</p>
+                <label class="product-option">
+                  <input type="checkbox" class="product-option-checkbox" data-option-label="com cobertura" data-option-price="5">
+                  <span>Adicionar cobertura (+ R$ 5,00)</span>
+                </label>
+                <div class="product-meta">
+                  <strong class="product-price">R$ 30,00</strong>
+                  <button class="product-button add-to-cart-button" type="button" data-id="bolo-caseiro-limao" data-nome="Bolo de Limão" data-preco="30.00">Adicionar ao pedido</button>
+                </div>
+              </div>
+            </article>
+
+            <article class="product-card">
+              <div class="product-image">
+                <!-- Adicionar depois: imagens/bolo-milho.jpg -->
+                <img src="./imagens/bolo-milho.jpg" alt="Bolo caseiro de Milho da Rafa Delícias Artesanais" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';">
+                <div class="image-placeholder" aria-hidden="true">
+                  <span>Adicionar bolo-milho.jpg</span>
+                </div>
+              </div>
+              <div class="product-content">
+                <h4>Bolo de Milho</h4>
+                <p>Receita cremosa e delicada com gostinho de fazenda e infância.</p>
+                <label class="product-option">
+                  <input type="checkbox" class="product-option-checkbox" data-option-label="com cobertura" data-option-price="5">
+                  <span>Adicionar cobertura (+ R$ 5,00)</span>
+                </label>
+                <div class="product-meta">
+                  <strong class="product-price">R$ 30,00</strong>
+                  <button class="product-button add-to-cart-button" type="button" data-id="bolo-caseiro-milho" data-nome="Bolo de Milho" data-preco="30.00">Adicionar ao pedido</button>
+                </div>
+              </div>
+            </article>
+
+            <article class="product-card">
+              <div class="product-image">
+                <!-- Adicionar depois: imagens/bolo-fuba.jpg -->
+                <img src="./imagens/bolo-fuba.jpg" alt="Bolo caseiro de Fubá da Rafa Delícias Artesanais" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';">
+                <div class="image-placeholder" aria-hidden="true">
+                  <span>Adicionar bolo-fuba.jpg</span>
+                </div>
+              </div>
+              <div class="product-content">
+                <h4>Bolo de Fubá</h4>
+                <p>Textura macia e sabor tradicional para uma mesa ainda mais acolhedora.</p>
+                <label class="product-option">
+                  <input type="checkbox" class="product-option-checkbox" data-option-label="com cobertura" data-option-price="5">
+                  <span>Adicionar cobertura (+ R$ 5,00)</span>
+                </label>
+                <div class="product-meta">
+                  <strong class="product-price">R$ 30,00</strong>
+                  <button class="product-button add-to-cart-button" type="button" data-id="bolo-caseiro-fuba" data-nome="Bolo de Fubá" data-preco="30.00">Adicionar ao pedido</button>
+                </div>
+              </div>
+            </article>
+
+            <article class="product-card">
+              <div class="product-image">
+                <!-- Adicionar depois: imagens/bolo-coco.jpg -->
+                <img src="./imagens/bolo-coco.jpg" alt="Bolo caseiro de Coco da Rafa Delícias Artesanais" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';">
+                <div class="image-placeholder" aria-hidden="true">
+                  <span>Adicionar bolo-coco.jpg</span>
+                </div>
+              </div>
+              <div class="product-content">
+                <h4>Bolo de Coco</h4>
+                <p>Sabor delicado e perfumado, ideal para lanches e comemorações simples.</p>
+                <label class="product-option">
+                  <input type="checkbox" class="product-option-checkbox" data-option-label="com cobertura" data-option-price="5">
+                  <span>Adicionar cobertura (+ R$ 5,00)</span>
+                </label>
+                <div class="product-meta">
+                  <strong class="product-price">R$ 30,00</strong>
+                  <button class="product-button add-to-cart-button" type="button" data-id="bolo-caseiro-coco" data-nome="Bolo de Coco" data-preco="30.00">Adicionar ao pedido</button>
+                </div>
+              </div>
+            </article>
+
+            <article class="product-card">
+              <div class="product-image">
+                <!-- Adicionar depois: imagens/bolo-laranja.jpg -->
+                <img src="./imagens/bolo-laranja.jpg" alt="Bolo caseiro de Laranja da Rafa Delícias Artesanais" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';">
+                <div class="image-placeholder" aria-hidden="true">
+                  <span>Adicionar bolo-laranja.jpg</span>
+                </div>
+              </div>
+              <div class="product-content">
+                <h4>Bolo de Laranja</h4>
+                <p>Aroma cítrico suave e massa leve para um café da tarde especial.</p>
+                <label class="product-option">
+                  <input type="checkbox" class="product-option-checkbox" data-option-label="com cobertura" data-option-price="5">
+                  <span>Adicionar cobertura (+ R$ 5,00)</span>
+                </label>
+                <div class="product-meta">
+                  <strong class="product-price">R$ 30,00</strong>
+                  <button class="product-button add-to-cart-button" type="button" data-id="bolo-caseiro-laranja" data-nome="Bolo de Laranja" data-preco="30.00">Adicionar ao pedido</button>
+                </div>
+              </div>
+            </article>
+          </div>
+        </article>
+
+        <article class="catalog-section">
+          <div class="category-header">
+            <span class="category-index">04</span>
+            <div>
+              <h3>Tortas doces</h3>
+              <p>Camadas delicadas e finalização charmosa para ocasiões marcantes.</p>
+            </div>
+          </div>
+
+          <div class="product-grid">
+            <article class="product-card">
+              <div class="product-image">
+                <!-- Adicionar depois: imagens/torta-morango.jpg -->
+                <img src="./imagens/torta-morango.jpg" alt="Torta doce de Morango da Rafa Delícias Artesanais" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';">
+                <div class="image-placeholder" aria-hidden="true">
+                  <span>Adicionar torta-morango.jpg</span>
+                </div>
+              </div>
+              <div class="product-content">
+                <h4>Morango</h4>
+                <p>Creme suave e cobertura delicada para uma sobremesa elegante.</p>
+                <div class="product-meta">
+                  <strong class="product-price">R$ 55,00</strong>
+                  <button class="product-button add-to-cart-button" type="button" data-id="torta-doce-morango" data-nome="Morango" data-preco="55.00">Adicionar ao pedido</button>
+                </div>
+              </div>
+            </article>
+
+            <article class="product-card">
+              <div class="product-image">
+                <!-- Adicionar depois: imagens/torta-maracuja.jpg -->
+                <img src="./imagens/torta-maracuja.jpg" alt="Torta doce de Maracujá da Rafa Delícias Artesanais" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';">
+                <div class="image-placeholder" aria-hidden="true">
+                  <span>Adicionar torta-maracuja.jpg</span>
+                </div>
+              </div>
+              <div class="product-content">
+                <h4>Maracujá</h4>
+                <p>Equilíbrio entre cremosidade e frescor com toque levemente cítrico.</p>
+                <div class="product-meta">
+                  <strong class="product-price">R$ 55,00</strong>
+                  <button class="product-button add-to-cart-button" type="button" data-id="torta-doce-maracuja" data-nome="Maracujá" data-preco="55.00">Adicionar ao pedido</button>
+                </div>
+              </div>
+            </article>
+
+            <article class="product-card">
+              <div class="product-image">
+                <!-- Adicionar depois: imagens/torta-chocolate.jpg -->
+                <img src="./imagens/torta-chocolate.jpg" alt="Torta doce de Chocolate da Rafa Delícias Artesanais" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';">
+                <div class="image-placeholder" aria-hidden="true">
+                  <span>Adicionar torta-chocolate.jpg</span>
+                </div>
+              </div>
+              <div class="product-content">
+                <h4>Chocolate</h4>
+                <p>Textura cremosa e sabor marcante para uma sobremesa intensa.</p>
+                <div class="product-meta">
+                  <strong class="product-price">R$ 55,00</strong>
+                  <button class="product-button add-to-cart-button" type="button" data-id="torta-doce-chocolate" data-nome="Chocolate" data-preco="55.00">Adicionar ao pedido</button>
+                </div>
+              </div>
+            </article>
+
+            <article class="product-card">
+              <div class="product-image">
+                <!-- Adicionar depois: imagens/torta-limao.jpg -->
+                <img src="./imagens/torta-limao.jpg" alt="Torta doce de Limão da Rafa Delícias Artesanais" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';">
+                <div class="image-placeholder" aria-hidden="true">
+                  <span>Adicionar torta-limao.jpg</span>
+                </div>
+              </div>
+              <div class="product-content">
+                <h4>Limão</h4>
+                <p>Leve, fresca e equilibrada para quem gosta de sabores cítricos.</p>
+                <div class="product-meta">
+                  <strong class="product-price">R$ 55,00</strong>
+                  <button class="product-button add-to-cart-button" type="button" data-id="torta-doce-limao" data-nome="Limão" data-preco="55.00">Adicionar ao pedido</button>
+                </div>
+              </div>
+            </article>
+          </div>
+        </article>
+
+        <article class="catalog-section">
+          <div class="category-header">
+            <span class="category-index">05</span>
+            <div>
+              <h3>Cookies artesanais</h3>
+              <p>Bordas levemente crocantes e centro macio em versões irresistíveis.</p>
+            </div>
+          </div>
+
+          <div class="product-grid">
+            <article class="product-card">
+              <div class="product-image">
+                <!-- Adicionar depois: imagens/cookie-tradicional.jpg -->
+                <img src="./imagens/cookie-tradicional.jpg" alt="Cookie Tradicional da Rafa Delícias Artesanais" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';">
+                <div class="image-placeholder" aria-hidden="true">
+                  <span>Adicionar cookie-tradicional.jpg</span>
+                </div>
+              </div>
+              <div class="product-content">
+                <h4>Cookie Tradicional</h4>
+                <p>Textura macia por dentro, dourada por fora e sabor clássico.</p>
+                <div class="product-meta">
+                  <strong class="product-price">R$ 10,00</strong>
+                  <button class="product-button add-to-cart-button" type="button" data-id="cookie-tradicional" data-nome="Cookie Tradicional" data-preco="10.00">Adicionar ao pedido</button>
+                </div>
+              </div>
+            </article>
+
+            <article class="product-card">
+              <div class="product-image">
+                <!-- Adicionar depois: imagens/cookie-premium.jpg -->
+                <img src="./imagens/cookie-premium.jpg" alt="Cookie Premium da Rafa Delícias Artesanais" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';">
+                <div class="image-placeholder" aria-hidden="true">
+                  <span>Adicionar cookie-premium.jpg</span>
+                </div>
+              </div>
+              <div class="product-content">
+                <h4>Cookie Premium</h4>
+                <p>Versão mais generosa, com textura intensa e sabor marcante.</p>
+                <div class="product-meta">
+                  <strong class="product-price">R$ 12,00</strong>
+                  <button class="product-button add-to-cart-button" type="button" data-id="cookie-premium" data-nome="Cookie Premium" data-preco="12.00">Adicionar ao pedido</button>
+                </div>
+              </div>
+            </article>
+          </div>
+        </article>
+
+        <article class="catalog-section">
+          <div class="category-header">
+            <span class="category-index">06</span>
+            <div>
+              <h3>Cupcakes</h3>
+              <p>Pequenos bolinhos decorados com charme para presentear ou celebrar.</p>
+            </div>
+          </div>
+
+          <div class="product-grid">
+            <article class="product-card">
+              <div class="product-image">
+                <!-- Adicionar depois: imagens/cupcake-artesanal.jpg -->
+                <img src="./imagens/cupcake-artesanal.jpg" alt="Cupcake Artesanal da Rafa Delícias Artesanais" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';">
+                <div class="image-placeholder" aria-hidden="true">
+                  <span>Adicionar cupcake-artesanal.jpg</span>
+                </div>
+              </div>
+              <div class="product-content">
+                <h4>Cupcake Artesanal</h4>
+                <p>Massa leve com cobertura delicada para momentos doces e especiais.</p>
+                <p class="product-note">A partir de R$ 7,00</p>
+                <p class="product-note">Pedido mínimo: 6 unidades</p>
+                <div class="product-meta">
+                  <strong class="product-price">A partir de R$ 7,00</strong>
+                  <button class="product-button add-to-cart-button" type="button" data-id="cupcake-artesanal" data-nome="Cupcake Artesanal" data-preco="7.00" data-minimo="6">Adicionar ao pedido</button>
+                </div>
+              </div>
+            </article>
+          </div>
+        </article>
+
+        <article class="catalog-section">
+          <div class="category-header">
+            <span class="category-index">07</span>
+            <div>
+              <h3>Bento Cake</h3>
+              <p>Uma opção delicada para presentes, comemorações e encomendas especiais.</p>
+            </div>
+          </div>
+
+          <div class="product-grid">
+            <article class="product-card">
+              <div class="product-image">
+                <!-- Adicionar depois: imagens/bento-cake.jpg -->
+                <img src="./imagens/bento-cake.jpg" alt="Bento Cake Artesanal da Rafa Delícias Artesanais" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';">
+                <div class="image-placeholder" aria-hidden="true">
+                  <span>Adicionar bento-cake.jpg</span>
+                </div>
+              </div>
+              <div class="product-content">
+                <h4>Bento Cake Artesanal</h4>
+                <p>Sabores e decoração sob consulta.</p>
+                <p class="product-note">A partir de R$ 50,00</p>
+                <div class="product-meta">
+                  <strong class="product-price">A partir de R$ 50,00</strong>
+                  <button class="product-button add-to-cart-button" type="button" data-id="bento-cake-artesanal" data-nome="Bento Cake Artesanal" data-preco="50.00">Adicionar ao pedido</button>
+                </div>
+              </div>
+            </article>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Estrutura visual do carrinho pronta para revisar, editar e finalizar o pedido -->
+    <section class="cart-section container" id="carrinho" aria-labelledby="carrinho-title">
+      <div class="section-heading">
+        <p class="section-kicker">Seu pedido</p>
+        <h2 id="carrinho-title">Carrinho de pedidos</h2>
+      </div>
+
+      <div class="cart-layout">
+        <div class="cart-panel">
+          <div class="cart-panel-header">
+            <div>
+              <h3>Resumo do carrinho</h3>
+              <p>Revise seus itens antes de avançar para a próxima etapa.</p>
+            </div>
+            <span class="cart-badge" id="cartBadge">0 itens</span>
+          </div>
+
+          <!-- A lista será preenchida dinamicamente pelo JavaScript usando os dados dos botões de produto -->
+          <div class="cart-items" id="cartItems" aria-live="polite"></div>
+        </div>
+
+        <aside class="cart-summary" aria-label="Resumo financeiro do pedido">
+          <div class="summary-card">
+            <h3>Total do pedido</h3>
+            <div class="summary-row">
+              <span>Itens</span>
+              <strong id="summaryCount">0</strong>
+            </div>
+            <div class="summary-row">
+              <span>Total geral</span>
+              <strong id="cartTotal">R$ 0,00</strong>
+            </div>
+            <button class="finalize-button" id="finalizeOrderButton" type="button" aria-label="Finalizar pedido pelo WhatsApp">
+              Finalizar pedido
+            </button>
+            <button class="clear-order-button" id="clearOrderButton" type="button" aria-label="Limpar todos os itens do pedido">
+              Limpar pedido
+            </button>
+            <p class="summary-note">
+              Nesta etapa, o botão abre o WhatsApp com os dados do pedido.
+            </p>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <!-- Botões flutuantes para facilitar acesso rápido ao carrinho e ao topo -->
+  <div class="floating-actions" aria-label="Ações rápidas">
+    <button class="floating-button floating-cart-button" id="floatingCartButton" type="button" aria-label="Ir para o carrinho">
+      Carrinho
+      <span class="floating-cart-count" id="floatingCartCount" aria-live="polite">0</span>
+    </button>
+    <button class="floating-button back-to-top-button" id="backToTopButton" type="button" aria-label="Voltar ao topo">
+      Topo
+    </button>
+  </div>
+
+  <footer class="footer" id="contato">
+    <div class="container footer-layout">
+      <div class="footer-branding">
+        <h2>Rafa Delícias Artesanais</h2>
+        <p>Feito em casa, com carinho e ingredientes selecionados.</p>
+      </div>
+
+      <div class="footer-info">
+        <div class="footer-block">
+          <h3>Contato</h3>
+          <p><a href="https://wa.me/5512988970995" target="_blank" rel="noreferrer">WhatsApp: (12) 98897-0995</a></p>
+          <p><a href="https://www.instagram.com/rafadeliciasartesanais" target="_blank" rel="noreferrer">Instagram: @rafadeliciasartesanais</a></p>
+        </div>
+
+        <div class="footer-block">
+          <h3>Atendimento</h3>
+          <p>Segunda a sábado</p>
+          <p>8h às 18h</p>
+        </div>
+
+        <div class="footer-block">
+          <h3>Pedidos</h3>
+          <p>Pedidos sob encomenda. Consulte disponibilidade para entrega ou retirada.</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="./script.js"></script>
+</body>
+</html>
