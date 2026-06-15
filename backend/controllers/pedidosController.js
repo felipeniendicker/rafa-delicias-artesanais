@@ -1,4 +1,5 @@
 const pool = require("../database/db");
+const STATUS_PERMITIDOS = ["recebido", "em_producao", "pronto", "entregue", "cancelado"];
 
 function isValorNumericoValido(valor) {
   return typeof valor === "number" && Number.isFinite(valor);
@@ -249,7 +250,56 @@ async function listarPedidos(request, response) {
   }
 }
 
+async function atualizarStatusPedido(request, response) {
+  const pedidoId = Number(request.params.id);
+  const { status } = request.body;
+
+  if (!Number.isInteger(pedidoId) || pedidoId <= 0) {
+    return response.status(400).json({
+      sucesso: false,
+      mensagem: "Informe um identificador de pedido válido."
+    });
+  }
+
+  if (!STATUS_PERMITIDOS.includes(status)) {
+    return response.status(400).json({
+      sucesso: false,
+      mensagem: "Informe um status de pedido válido."
+    });
+  }
+
+  try {
+    const resultado = await pool.query(
+      `
+        UPDATE pedidos
+        SET status = $1
+        WHERE id = $2
+        RETURNING id;
+      `,
+      [status, pedidoId]
+    );
+
+    if (resultado.rowCount === 0) {
+      return response.status(404).json({
+        sucesso: false,
+        mensagem: "Pedido não encontrado."
+      });
+    }
+
+    return response.json({
+      sucesso: true,
+      mensagem: "Status atualizado com sucesso."
+    });
+  } catch (error) {
+    return response.status(500).json({
+      sucesso: false,
+      mensagem: "Não foi possível atualizar o status do pedido agora."
+    });
+  }
+}
+
 module.exports = {
   criarPedido,
-  listarPedidos
+  listarPedidos,
+  atualizarStatusPedido
 };

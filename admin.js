@@ -1,6 +1,13 @@
 const ordersList = document.querySelector("#ordersList");
 const ordersFeedback = document.querySelector("#ordersFeedback");
 const refreshOrdersButton = document.querySelector("#refreshOrdersButton");
+const STATUS_OPTIONS = [
+  { value: "recebido", label: "Recebido" },
+  { value: "em_producao", label: "Em produção" },
+  { value: "pronto", label: "Pronto" },
+  { value: "entregue", label: "Entregue" },
+  { value: "cancelado", label: "Cancelado" }
+];
 
 function formatarMoeda(valor) {
   return new Intl.NumberFormat("pt-BR", {
@@ -63,6 +70,20 @@ function montarEndereco(pedido) {
   return linhas.length > 0 ? linhas.join("<br>") : "Não informado";
 }
 
+function formatarStatus(status) {
+  const option = STATUS_OPTIONS.find((item) => item.value === status);
+
+  return option ? option.label : status;
+}
+
+function montarOpcoesStatus(statusAtual) {
+  return STATUS_OPTIONS.map((option) => `
+    <option value="${option.value}" ${option.value === statusAtual ? "selected" : ""}>
+      ${option.label}
+    </option>
+  `).join("");
+}
+
 function renderizarPedidos(pedidos) {
   if (!ordersList || !ordersFeedback) {
     return;
@@ -87,7 +108,15 @@ function renderizarPedidos(pedidos) {
           <h3>Pedido #${pedido.id}</h3>
           <p class="order-meta">Registrado em ${formatarDataHora(pedido.criado_em)}</p>
         </div>
-        <span class="order-status">${pedido.status}</span>
+        <div class="order-status-wrapper">
+          <span class="order-status" data-status-label>${formatarStatus(pedido.status)}</span>
+          <label class="status-control">
+            <span>Status</span>
+            <select class="status-select" data-order-id="${pedido.id}" data-previous-value="${pedido.status}">
+              ${montarOpcoesStatus(pedido.status)}
+            </select>
+          </label>
+        </div>
       </div>
 
       <div class="order-grid">
@@ -150,6 +179,33 @@ function renderizarPedidos(pedidos) {
   `).join("");
 }
 
+async function atualizarStatusPedido(orderId, status, selectElement) {
+  const response = await fetch(`/api/pedidos/${orderId}/status`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ status })
+  });
+
+  const data = await response.json();
+
+  if (!response.ok || !data?.sucesso) {
+    throw new Error(data?.mensagem || "Não foi possível atualizar o status agora.");
+  }
+
+  const orderCard = selectElement.closest(".order-card");
+  const statusLabel = orderCard ? orderCard.querySelector("[data-status-label]") : null;
+
+  if (statusLabel) {
+    statusLabel.textContent = formatarStatus(status);
+  }
+
+  if (ordersFeedback) {
+    ordersFeedback.textContent = data.mensagem;
+  }
+}
+
 async function carregarPedidos() {
   if (!ordersList || !ordersFeedback) {
     return;
@@ -179,6 +235,34 @@ async function carregarPedidos() {
 if (refreshOrdersButton) {
   refreshOrdersButton.addEventListener("click", () => {
     carregarPedidos();
+  });
+}
+
+if (ordersList) {
+  ordersList.addEventListener("change", async (event) => {
+    const target = event.target;
+
+    if (!(target instanceof HTMLSelectElement) || !target.matches(".status-select")) {
+      return;
+    }
+
+    const { orderId } = target.dataset;
+    const previousValue = target.dataset.previousValue || target.value;
+
+    target.disabled = true;
+
+    try {
+      await atualizarStatusPedido(orderId, target.value, target);
+      target.dataset.previousValue = target.value;
+    } catch (error) {
+      target.value = previousValue;
+
+      if (ordersFeedback) {
+        ordersFeedback.textContent = error.message || "Não foi possível atualizar o status agora.";
+      }
+    } finally {
+      target.disabled = false;
+    }
   });
 }
 
