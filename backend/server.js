@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const express = require("express");
+const authRoutes = require("./routes/authRoutes");
 const pagamentosRoutes = require("./routes/pagamentosRoutes");
 const pedidosRoutes = require("./routes/pedidosRoutes");
 const testeBancoRoutes = require("./routes/testeBancoRoutes");
@@ -29,6 +30,7 @@ app.use((request, response, next) => {
 app.use(express.json());
 
 // Agrupa rotas da API em um prefixo único para organizar o backend desde o início.
+app.use("/api/auth", authRoutes);
 app.use("/api/pagamentos", pagamentosRoutes);
 app.use("/api", testeBancoRoutes);
 app.use("/api", pedidosRoutes);
