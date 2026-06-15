@@ -790,6 +790,17 @@ button {
   line-height: 1.7;
 }
 
+.district-shipping-feedback {
+  margin: 1rem 0 0;
+  color: var(--primary-dark);
+  line-height: 1.7;
+  font-weight: 700;
+}
+
+.district-shipping-feedback.is-warning {
+  color: #8b4a3f;
+}
+
 .checkout-summary-card {
   position: sticky;
   top: 1rem;

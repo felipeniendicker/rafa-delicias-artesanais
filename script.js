@@ -7,6 +7,14 @@ const CONFIG = {
   nomeLoja: "Rafa Delícias Artesanais",
   whatsapp: "5512988970995",
   taxaEntregaPadrao: 8,
+  // Futuramente esta tabela pode vir do banco de dados ou do painel administrativo.
+  fretesPorBairro: {
+    centro: 5,
+    topolândia: 7,
+    topolandia: 7,
+    "porto grande": 8,
+    varadouro: 10
+  },
   apiBaseUrl: "/api"
 };
 
@@ -61,6 +69,7 @@ const customerNumberInput = document.querySelector("#customerNumber");
 const customerDistrictInput = document.querySelector("#customerDistrict");
 const customerComplementInput = document.querySelector("#customerComplement");
 const customerReferenceInput = document.querySelector("#customerReference");
+const districtShippingFeedback = document.querySelector("#districtShippingFeedback");
 const desiredDateInput = document.querySelector("#desiredDate");
 const desiredTimeInput = document.querySelector("#desiredTime");
 const customerNotesInput = document.querySelector("#customerNotes");
@@ -96,8 +105,82 @@ function isEntregaSelecionada() {
   return obterTipoRecebimentoSelecionado() === "entrega";
 }
 
+function normalizarTexto(texto) {
+  return String(texto || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function obterFreteEntrega() {
+  const bairroInformado = customerDistrictInput ? customerDistrictInput.value.trim() : "";
+  const bairroNormalizado = normalizarTexto(bairroInformado);
+  const taxaPadrao = Number(CONFIG.taxaEntregaPadrao || 0);
+
+  if (!bairroNormalizado) {
+    return {
+      bairroOriginal: bairroInformado,
+      bairroNormalizado,
+      valor: taxaPadrao,
+      encontrado: false,
+      usandoPadrao: true
+    };
+  }
+
+  const fretesPorBairro = CONFIG.fretesPorBairro || {};
+
+  if (Object.prototype.hasOwnProperty.call(fretesPorBairro, bairroNormalizado)) {
+    return {
+      bairroOriginal: bairroInformado,
+      bairroNormalizado,
+      valor: Number(fretesPorBairro[bairroNormalizado] || 0),
+      encontrado: true,
+      usandoPadrao: false
+    };
+  }
+
+  return {
+    bairroOriginal: bairroInformado,
+    bairroNormalizado,
+    valor: taxaPadrao,
+    encontrado: false,
+    usandoPadrao: true
+  };
+}
+
+function atualizarMensagemFrete() {
+  if (!districtShippingFeedback) {
+    return;
+  }
+
+  if (!isEntregaSelecionada()) {
+    districtShippingFeedback.textContent = "";
+    districtShippingFeedback.classList.remove("is-warning");
+    return;
+  }
+
+  const freteInfo = obterFreteEntrega();
+
+  if (!freteInfo.bairroOriginal) {
+    districtShippingFeedback.textContent = `Frete padrão de entrega: ${formatarMoeda(freteInfo.valor)}.`;
+    districtShippingFeedback.classList.remove("is-warning");
+    return;
+  }
+
+  if (freteInfo.encontrado) {
+    districtShippingFeedback.textContent = `Frete para ${freteInfo.bairroOriginal}: ${formatarMoeda(freteInfo.valor)}`;
+    districtShippingFeedback.classList.remove("is-warning");
+    return;
+  }
+
+  districtShippingFeedback.textContent = "Bairro não encontrado na tabela. Será aplicada a taxa padrão de entrega.";
+  districtShippingFeedback.classList.add("is-warning");
+}
+
 function calcularFrete() {
-  return isEntregaSelecionada() ? Number(CONFIG.taxaEntregaPadrao || 0) : 0;
+  return isEntregaSelecionada() ? obterFreteEntrega().valor : 0;
 }
 
 // Soma apenas os produtos do carrinho.
@@ -149,6 +232,7 @@ function atualizarCamposEntrega() {
   }
 
   addressFields.classList.toggle("is-hidden", !isEntregaSelecionada());
+  atualizarMensagemFrete();
 }
 
 function validarCheckout(dadosCheckout) {
@@ -762,6 +846,13 @@ deliveryTypeInputs.forEach((input) => {
   });
 });
 
+if (customerDistrictInput) {
+  customerDistrictInput.addEventListener("input", () => {
+    atualizarMensagemFrete();
+    atualizarCarrinho();
+  });
+}
+
 if (finishWithWhatsAppButton) {
   finishWithWhatsAppButton.addEventListener("click", () => {
     if (!pedidoFinalizacaoAtual) {
@@ -830,4 +921,5 @@ window.addEventListener("scroll", alternarBotaoTopo);
 carregarCarrinho();
 atualizarCamposEntrega();
 atualizarCarrinho();
+atualizarMensagemFrete();
 alternarBotaoTopo();
