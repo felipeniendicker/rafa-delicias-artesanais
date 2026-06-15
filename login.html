@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acesso administrativo | Rafa Delícias Artesanais</title>
+  <link rel="icon" type="image/png" href="./favicon.png">
+  <link rel="shortcut icon" href="./favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Serif+Text:ital@0;1&family=Manrope:wght@400;500;700;800&display=swap"
+    rel="stylesheet"
+  >
+  <link rel="stylesheet" href="./login.css">
+</head>
+<body>
+  <main class="login-page">
+    <section class="login-shell">
+      <div class="login-branding">
+        <img class="login-logo" src="./favicon.png" alt="Logo da Rafa Delícias Artesanais">
+        <p class="login-kicker">Rafa Delícias Artesanais</p>
+        <h1>Acesso administrativo</h1>
+        <p class="login-description">
+          Entre para gerenciar pedidos, status e pagamentos.
+        </p>
+      </div>
+
+      <form class="login-card" id="loginForm" novalidate>
+        <label class="login-field">
+          <span>E-mail</span>
+          <input type="email" id="loginEmail" name="loginEmail" autocomplete="email" placeholder="admin@exemplo.com">
+        </label>
+
+        <label class="login-field">
+          <span>Senha</span>
+          <input type="password" id="loginPassword" name="loginPassword" autocomplete="current-password" placeholder="Digite sua senha">
+        </label>
+
+        <button class="login-button" type="submit">Entrar</button>
+        <p class="login-feedback" id="loginFeedback" aria-live="polite"></p>
+        <a class="login-back-link" href="./index.html">Voltar para a loja</a>
+      </form>
+    </section>
+  </main>
+
+  <script src="./login.js"></script>
+</body>
+</html>
