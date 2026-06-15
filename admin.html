@@ -13,6 +13,20 @@
     rel="stylesheet"
   >
   <link rel="stylesheet" href="./admin.css">
+  <script>
+    (function () {
+      const adminToken = localStorage.getItem("rafaDeliciasAdminToken");
+
+      if (!adminToken) {
+        window.location.replace("/login.html");
+        return;
+      }
+
+      if (window.location.pathname === "/admin.html") {
+        window.location.replace("/admin");
+      }
+    }());
+  </script>
 </head>
 <body>
   <main class="admin-page">

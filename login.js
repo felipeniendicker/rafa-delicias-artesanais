@@ -54,7 +54,7 @@ if (loginForm) {
       // O token fica salvo no navegador para ser enviado nas rotas administrativas protegidas.
       localStorage.setItem(ADMIN_TOKEN_STORAGE_KEY, data.token);
       atualizarFeedbackLogin(data.mensagem || "Login realizado com sucesso.");
-      window.location.href = "./admin.html";
+      window.location.href = "/admin";
     } catch (error) {
       atualizarFeedbackLogin(error.message || "Não foi possível realizar o login agora.");
     } finally {

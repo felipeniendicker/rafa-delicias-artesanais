@@ -10,6 +10,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const frontendPath = path.join(__dirname, "..");
 const notFoundPagePath = path.join(frontendPath, "404.html");
+const adminPagePath = path.join(frontendPath, "admin.html");
 
 // Libera o acesso da API para o front-end durante a integração.
 // Isso evita bloqueios de CORS quando site e backend estão em origens diferentes.
@@ -34,6 +35,18 @@ app.use("/api/auth", authRoutes);
 app.use("/api/pagamentos", pagamentosRoutes);
 app.use("/api", testeBancoRoutes);
 app.use("/api", pedidosRoutes);
+
+// O painel passa a ter uma rota amigável própria.
+// Como o JWT fica no localStorage, o servidor não consegue validar esse token neste GET.
+// A proteção real dos dados continua nas rotas da API, que exigem Authorization: Bearer TOKEN.
+app.get("/admin", (request, response) => {
+  response.sendFile(adminPagePath);
+});
+
+// Mantém compatibilidade com acessos antigos e concentra o fluxo de entrada do painel em /admin.
+app.get("/admin.html", (request, response) => {
+  response.redirect("/admin");
+});
 
 // Serve os arquivos estáticos do front-end a partir da raiz do projeto.
 // Isso permite publicar site e API no mesmo domínio usando um único serviço Node/Express.
