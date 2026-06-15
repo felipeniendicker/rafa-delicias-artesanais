@@ -28,11 +28,22 @@ const CONFIG = {
   },
   // Futuramente esta tabela pode vir do banco de dados ou do painel administrativo.
   fretesPorBairro: {
-    centro: 5,
-    topolândia: 7,
-    topolandia: 7,
-    "porto grande": 8,
-    varadouro: 10
+    "baleia verde": 2,
+    baleia: 3,
+    "vila sahy": 5,
+    "vila sahy baiana": 5,
+    "vila baiana": 5,
+    baiana: 5,
+    "vila sai": 5,
+    cambury: 7,
+    camburi: 7,
+    juquehy: 9,
+    juquei: 9,
+    boicucanga: 9,
+    boicutanga: 9,
+    boissucanga: 9,
+    "barra do una": 12,
+    boraceia: 15
   },
   apiBaseUrl: "/api"
 };
