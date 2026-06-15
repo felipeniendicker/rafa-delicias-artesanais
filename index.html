@@ -657,17 +657,147 @@
               <strong id="summaryCount">0</strong>
             </div>
             <div class="summary-row">
-              <span>Total geral</span>
+              <span>Subtotal dos produtos</span>
+              <strong id="cartSubtotal">R$ 0,00</strong>
+            </div>
+            <div class="summary-row">
+              <span>Frete</span>
+              <strong id="cartShipping">R$ 0,00</strong>
+            </div>
+            <div class="summary-row summary-row-total">
+              <span>Total final</span>
               <strong id="cartTotal">R$ 0,00</strong>
             </div>
-            <button class="finalize-button" id="finalizeOrderButton" type="button" aria-label="Finalizar pedido pelo WhatsApp">
-              Finalizar pedido
-            </button>
             <button class="clear-order-button" id="clearOrderButton" type="button" aria-label="Limpar todos os itens do pedido">
               Limpar pedido
             </button>
             <p class="summary-note">
-              Nesta etapa, o botão abre o WhatsApp com os dados do pedido.
+              Preencha a finalização do pedido abaixo para enviar todos os dados pelo WhatsApp.
+            </p>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- Checkout em front-end para complementar o carrinho com dados do cliente antes do envio ao WhatsApp -->
+    <section class="checkout-section container" id="checkout" aria-labelledby="checkout-title">
+      <div class="section-heading">
+        <p class="section-kicker">Próxima etapa</p>
+        <h2 id="checkout-title">Finalização do pedido</h2>
+      </div>
+
+      <div class="checkout-layout">
+        <form class="checkout-form" id="checkoutForm">
+          <div class="checkout-card">
+            <h3>Dados do cliente</h3>
+            <div class="checkout-grid">
+              <label class="checkout-field">
+                <span>Nome do cliente *</span>
+                <input type="text" id="customerName" name="customerName" autocomplete="name" placeholder="Digite seu nome">
+              </label>
+
+              <label class="checkout-field">
+                <span>Telefone *</span>
+                <input type="tel" id="customerPhone" name="customerPhone" autocomplete="tel" placeholder="(00) 00000-0000">
+              </label>
+            </div>
+          </div>
+
+          <div class="checkout-card">
+            <h3>Recebimento</h3>
+            <div class="checkout-receipt-options" role="radiogroup" aria-label="Tipo de recebimento">
+              <label class="receipt-option">
+                <input type="radio" name="deliveryType" value="retirada">
+                <span>Retirada</span>
+              </label>
+
+              <label class="receipt-option">
+                <input type="radio" name="deliveryType" value="entrega">
+                <span>Entrega</span>
+              </label>
+            </div>
+
+            <!-- Os campos de endereço ficam prontos para aparecer apenas quando o cliente selecionar entrega -->
+            <div class="address-fields is-hidden" id="addressFields">
+              <div class="checkout-grid">
+                <label class="checkout-field">
+                  <span>CEP *</span>
+                  <input type="text" id="customerZipcode" name="customerZipcode" inputmode="numeric" placeholder="00000-000">
+                </label>
+
+                <label class="checkout-field">
+                  <span>Rua *</span>
+                  <input type="text" id="customerStreet" name="customerStreet" autocomplete="street-address" placeholder="Nome da rua">
+                </label>
+
+                <label class="checkout-field">
+                  <span>Número *</span>
+                  <input type="text" id="customerNumber" name="customerNumber" placeholder="Número">
+                </label>
+
+                <label class="checkout-field">
+                  <span>Bairro *</span>
+                  <input type="text" id="customerDistrict" name="customerDistrict" placeholder="Bairro">
+                </label>
+
+                <label class="checkout-field">
+                  <span>Complemento</span>
+                  <input type="text" id="customerComplement" name="customerComplement" placeholder="Apartamento, bloco, etc.">
+                </label>
+
+                <label class="checkout-field">
+                  <span>Ponto de referência</span>
+                  <input type="text" id="customerReference" name="customerReference" placeholder="Ex.: portão azul, próximo à praça">
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="checkout-card">
+            <h3>Data e observações</h3>
+            <div class="checkout-grid">
+              <label class="checkout-field">
+                <span>Data desejada *</span>
+                <input type="date" id="desiredDate" name="desiredDate">
+              </label>
+
+              <label class="checkout-field">
+                <span>Horário desejado *</span>
+                <input type="time" id="desiredTime" name="desiredTime">
+              </label>
+            </div>
+
+            <p class="checkout-help">
+              Pedidos sob encomenda. O horário será confirmado pela Rafa Delícias Artesanais.
+            </p>
+
+            <label class="checkout-field">
+              <span>Observações</span>
+              <textarea id="customerNotes" name="customerNotes" rows="4" placeholder="Mensagem no Bento Cake, sem coco, entregar após as 15h..."></textarea>
+            </label>
+          </div>
+        </form>
+
+        <aside class="checkout-summary" aria-label="Resumo da finalização do pedido">
+          <div class="summary-card checkout-summary-card">
+            <h3>Resumo da finalização</h3>
+            <div class="summary-row">
+              <span>Subtotal dos produtos</span>
+              <strong id="checkoutSubtotal">R$ 0,00</strong>
+            </div>
+            <div class="summary-row">
+              <span>Frete</span>
+              <strong id="checkoutShipping">R$ 0,00</strong>
+            </div>
+            <div class="summary-row summary-row-total">
+              <span>Total final</span>
+              <strong id="checkoutTotal">R$ 0,00</strong>
+            </div>
+            <button class="finalize-button" id="finalizeOrderButton" type="button" aria-label="Finalizar pedido pelo WhatsApp">
+              Finalizar pedido
+            </button>
+            <p class="summary-note">
+              O pedido será enviado pelo WhatsApp com seus dados, forma de recebimento e resumo completo.
             </p>
           </div>
         </aside>

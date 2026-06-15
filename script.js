@@ -1,11 +1,12 @@
 // ==========================
 // CONFIGURAÇÕES DA LOJA
 // ==========================
-// Ajuste nome e WhatsApp neste único objeto quando precisar atualizar a identidade da loja.
-// Isso evita alterar vários pontos do código e ajuda a manter a manutenção mais segura.
+// Ajuste nome, WhatsApp e taxa de entrega neste único objeto.
+// Assim, a identidade da loja e as regras básicas do checkout podem ser alteradas futuramente em um só lugar.
 const CONFIG = {
   nomeLoja: "Rafa Delícias Artesanais",
-  whatsapp: "5512988970995"
+  whatsapp: "5512988970995",
+  taxaEntregaPadrao: 8
 };
 
 // Faz o botão principal levar o usuário até a seção inicial do cardápio.
@@ -32,9 +33,11 @@ window.addEventListener("focus", () => {
   document.title = originalTitle;
 });
 
-// Elementos-base do carrinho para renderização e atualização do resumo.
+// Elementos-base do carrinho, checkout e resumo financeiro.
 const cartItemsContainer = document.querySelector("#cartItems");
 const cartTotalElement = document.querySelector("#cartTotal");
+const cartSubtotalElement = document.querySelector("#cartSubtotal");
+const cartShippingElement = document.querySelector("#cartShipping");
 const cartCountElement = document.querySelector("#cartCount");
 const cartBadgeElement = document.querySelector("#cartBadge");
 const summaryCountElement = document.querySelector("#summaryCount");
@@ -45,10 +48,26 @@ const floatingCartButton = document.querySelector("#floatingCartButton");
 const floatingCartCount = document.querySelector("#floatingCartCount");
 const backToTopButton = document.querySelector("#backToTopButton");
 const cartSection = document.querySelector("#carrinho");
+const addressFields = document.querySelector("#addressFields");
+const checkoutSubtotalElement = document.querySelector("#checkoutSubtotal");
+const checkoutShippingElement = document.querySelector("#checkoutShipping");
+const checkoutTotalElement = document.querySelector("#checkoutTotal");
+const customerNameInput = document.querySelector("#customerName");
+const customerPhoneInput = document.querySelector("#customerPhone");
+const customerZipcodeInput = document.querySelector("#customerZipcode");
+const customerStreetInput = document.querySelector("#customerStreet");
+const customerNumberInput = document.querySelector("#customerNumber");
+const customerDistrictInput = document.querySelector("#customerDistrict");
+const customerComplementInput = document.querySelector("#customerComplement");
+const customerReferenceInput = document.querySelector("#customerReference");
+const desiredDateInput = document.querySelector("#desiredDate");
+const desiredTimeInput = document.querySelector("#desiredTime");
+const customerNotesInput = document.querySelector("#customerNotes");
+const deliveryTypeInputs = document.querySelectorAll('input[name="deliveryType"]');
 
 const CHAVE_CARRINHO_STORAGE = "rafaDeliciasCarrinho";
 
-// Estrutura simples em memória. Mais adiante ela pode ser persistida ou integrada com outra etapa.
+// Estrutura simples em memória. Ela segue compatível com localStorage e com as regras já existentes.
 const carrinho = [];
 
 // Formata valores monetários em Real para manter a apresentação consistente.
@@ -57,6 +76,133 @@ function formatarMoeda(valor) {
     style: "currency",
     currency: "BRL"
   }).format(valor);
+}
+
+function obterTipoRecebimentoSelecionado() {
+  const selectedOption = Array.from(deliveryTypeInputs).find((input) => input.checked);
+
+  return selectedOption ? selectedOption.value : "";
+}
+
+function isEntregaSelecionada() {
+  return obterTipoRecebimentoSelecionado() === "entrega";
+}
+
+function calcularFrete() {
+  return isEntregaSelecionada() ? Number(CONFIG.taxaEntregaPadrao || 0) : 0;
+}
+
+// Soma apenas os produtos do carrinho.
+function calcularSubtotalProdutos() {
+  return carrinho.reduce((total, produto) => {
+    return total + produto.preco * produto.quantidade;
+  }, 0);
+}
+
+function calcularTotalFinal() {
+  return calcularSubtotalProdutos() + calcularFrete();
+}
+
+function formatarDataParaMensagem(data) {
+  if (!data) {
+    return "";
+  }
+
+  const [ano, mes, dia] = data.split("-");
+
+  if (!ano || !mes || !dia) {
+    return data;
+  }
+
+  return `${dia}/${mes}/${ano}`;
+}
+
+function obterDadosCheckout() {
+  return {
+    nome: customerNameInput ? customerNameInput.value.trim() : "",
+    telefone: customerPhoneInput ? customerPhoneInput.value.trim() : "",
+    tipoRecebimento: obterTipoRecebimentoSelecionado(),
+    cep: customerZipcodeInput ? customerZipcodeInput.value.trim() : "",
+    rua: customerStreetInput ? customerStreetInput.value.trim() : "",
+    numero: customerNumberInput ? customerNumberInput.value.trim() : "",
+    bairro: customerDistrictInput ? customerDistrictInput.value.trim() : "",
+    complemento: customerComplementInput ? customerComplementInput.value.trim() : "",
+    referencia: customerReferenceInput ? customerReferenceInput.value.trim() : "",
+    dataDesejada: desiredDateInput ? desiredDateInput.value : "",
+    horarioDesejado: desiredTimeInput ? desiredTimeInput.value : "",
+    observacoes: customerNotesInput ? customerNotesInput.value.trim() : ""
+  };
+}
+
+// Exibe ou oculta os campos de endereço conforme o tipo de recebimento escolhido.
+function atualizarCamposEntrega() {
+  if (!addressFields) {
+    return;
+  }
+
+  addressFields.classList.toggle("is-hidden", !isEntregaSelecionada());
+}
+
+function validarCheckout(dadosCheckout) {
+  const camposFaltando = [];
+
+  if (!dadosCheckout.nome) {
+    camposFaltando.push("nome do cliente");
+  }
+
+  if (!dadosCheckout.telefone) {
+    camposFaltando.push("telefone");
+  }
+
+  if (!dadosCheckout.tipoRecebimento) {
+    camposFaltando.push("tipo de recebimento");
+  }
+
+  if (!dadosCheckout.dataDesejada) {
+    camposFaltando.push("data desejada");
+  }
+
+  if (!dadosCheckout.horarioDesejado) {
+    camposFaltando.push("horário desejado");
+  }
+
+  if (dadosCheckout.tipoRecebimento === "entrega") {
+    if (!dadosCheckout.cep) {
+      camposFaltando.push("CEP");
+    }
+
+    if (!dadosCheckout.rua) {
+      camposFaltando.push("rua");
+    }
+
+    if (!dadosCheckout.numero) {
+      camposFaltando.push("número");
+    }
+
+    if (!dadosCheckout.bairro) {
+      camposFaltando.push("bairro");
+    }
+  }
+
+  return camposFaltando;
+}
+
+function montarEnderecoEntrega(dadosCheckout) {
+  const linhasEndereco = [
+    `CEP: ${dadosCheckout.cep}`,
+    `Rua: ${dadosCheckout.rua}, ${dadosCheckout.numero}`,
+    `Bairro: ${dadosCheckout.bairro}`
+  ];
+
+  if (dadosCheckout.complemento) {
+    linhasEndereco.push(`Complemento: ${dadosCheckout.complemento}`);
+  }
+
+  if (dadosCheckout.referencia) {
+    linhasEndereco.push(`Ponto de referência: ${dadosCheckout.referencia}`);
+  }
+
+  return linhasEndereco.join("\n");
 }
 
 // Localiza um produto já existente no carrinho pelo identificador único.
@@ -79,7 +225,7 @@ function obterDadosProduto(button) {
   let nomeFinal = nome;
   let idFinal = id;
   let precoFinal = Number(preco);
-  let minimoFinal = Number(button.dataset.minimo || 0);
+  const minimoFinal = Number(button.dataset.minimo || 0);
 
   if (!productCard) {
     return {
@@ -179,13 +325,6 @@ function removerProduto(id) {
   atualizarCarrinho();
 }
 
-// Soma os subtotais dos itens para exibir o valor final do pedido.
-function calcularTotal() {
-  return carrinho.reduce((total, produto) => {
-    return total + produto.preco * produto.quantidade;
-  }, 0);
-}
-
 // Conta a quantidade total de unidades no pedido.
 function calcularQuantidadeItens() {
   return carrinho.reduce((total, produto) => total + produto.quantidade, 0);
@@ -260,16 +399,33 @@ function limparCarrinho() {
 }
 
 // Gera a mensagem completa e abre o WhatsApp com encodeURIComponent, sem limpar o carrinho.
-// O número e o nome da loja são lidos do objeto CONFIG para facilitar futuras alterações.
+// A nova etapa de checkout complementa o pedido com dados do cliente, entrega ou retirada e observações.
 function enviarPedidoParaWhatsApp() {
   if (carrinho.length === 0) {
     alert("Adicione pelo menos um produto antes de finalizar o pedido.");
     return;
   }
 
-  const totalPedido = calcularTotal();
+  const dadosCheckout = obterDadosCheckout();
+  const camposFaltando = validarCheckout(dadosCheckout);
+
+  if (camposFaltando.length > 0) {
+    alert(`Preencha os campos obrigatórios antes de finalizar o pedido: ${camposFaltando.join(", ")}.`);
+    return;
+  }
+
+  const subtotalProdutos = calcularSubtotalProdutos();
+  const frete = calcularFrete();
+  const totalPedido = calcularTotalFinal();
   const listaProdutos = montarLinhasPedido();
-  const mensagem = `Olá! Vim pelo site da ${CONFIG.nomeLoja} e gostaria de fazer um pedido:\n\n${listaProdutos}\n\nTotal: ${formatarMoeda(totalPedido)}\n\nGostaria de confirmar a disponibilidade e combinar a entrega/retirada.\n\n---\n\nPedido realizado pelo site da ${CONFIG.nomeLoja}.`;
+  const recebimento = dadosCheckout.tipoRecebimento === "entrega" ? "Entrega" : "Retirada";
+  const enderecoEntrega = dadosCheckout.tipoRecebimento === "entrega"
+    ? `\n\nEndereço de entrega:\n${montarEnderecoEntrega(dadosCheckout)}`
+    : "";
+  const observacoes = dadosCheckout.observacoes
+    ? `\nObservações: ${dadosCheckout.observacoes}`
+    : "";
+  const mensagem = `Olá! Vim pelo site da ${CONFIG.nomeLoja} e gostaria de fazer um pedido:\n\nNome: ${dadosCheckout.nome}\nTelefone: ${dadosCheckout.telefone}\nTipo de recebimento: ${recebimento}${enderecoEntrega}\n\nData desejada: ${formatarDataParaMensagem(dadosCheckout.dataDesejada)}\nHorário desejado: ${dadosCheckout.horarioDesejado}${observacoes}\n\nItens do pedido:\n${listaProdutos}\n\nSubtotal dos produtos: ${formatarMoeda(subtotalProdutos)}\nFrete: ${formatarMoeda(frete)}\nTotal final: ${formatarMoeda(totalPedido)}\n\nGostaria de confirmar a disponibilidade e combinar a ${dadosCheckout.tipoRecebimento === "entrega" ? "entrega" : "retirada"}.\n\n---\n\nPedido realizado pelo site da ${CONFIG.nomeLoja}.`;
   const mensagemCodificada = encodeURIComponent(mensagem);
   const urlWhatsApp = `https://wa.me/${CONFIG.whatsapp}?text=${mensagemCodificada}`;
 
@@ -285,18 +441,42 @@ function alternarBotaoTopo() {
 }
 
 // Gera a interface completa do carrinho sempre que algum item é alterado.
+// O resumo também é recalculado quando o cliente alterna entre entrega e retirada.
 function atualizarCarrinho() {
   if (!cartItemsContainer || !cartTotalElement || !cartCountElement || !cartBadgeElement || !summaryCountElement) {
     return;
   }
 
   const totalItens = calcularQuantidadeItens();
-  const totalPedido = calcularTotal();
+  const subtotalProdutos = calcularSubtotalProdutos();
+  const frete = calcularFrete();
+  const totalPedido = calcularTotalFinal();
 
   cartCountElement.textContent = String(totalItens);
   cartBadgeElement.textContent = `${totalItens} ${totalItens === 1 ? "item" : "itens"}`;
   summaryCountElement.textContent = String(totalItens);
+
+  if (cartSubtotalElement) {
+    cartSubtotalElement.textContent = formatarMoeda(subtotalProdutos);
+  }
+
+  if (cartShippingElement) {
+    cartShippingElement.textContent = formatarMoeda(frete);
+  }
+
   cartTotalElement.textContent = formatarMoeda(totalPedido);
+
+  if (checkoutSubtotalElement) {
+    checkoutSubtotalElement.textContent = formatarMoeda(subtotalProdutos);
+  }
+
+  if (checkoutShippingElement) {
+    checkoutShippingElement.textContent = formatarMoeda(frete);
+  }
+
+  if (checkoutTotalElement) {
+    checkoutTotalElement.textContent = formatarMoeda(totalPedido);
+  }
 
   if (floatingCartCount) {
     floatingCartCount.textContent = String(totalItens);
@@ -398,6 +578,13 @@ if (clearOrderButton) {
   });
 }
 
+deliveryTypeInputs.forEach((input) => {
+  input.addEventListener("change", () => {
+    atualizarCamposEntrega();
+    atualizarCarrinho();
+  });
+});
+
 // Ações rápidas para melhorar a navegação sem alterar a lógica do pedido.
 if (floatingCartButton && cartSection) {
   floatingCartButton.addEventListener("click", () => {
@@ -419,7 +606,8 @@ if (backToTopButton) {
 
 window.addEventListener("scroll", alternarBotaoTopo);
 
-// Renderização inicial do estado vazio do carrinho.
+// Renderização inicial do estado do carrinho e do checkout.
 carregarCarrinho();
+atualizarCamposEntrega();
 atualizarCarrinho();
 alternarBotaoTopo();
