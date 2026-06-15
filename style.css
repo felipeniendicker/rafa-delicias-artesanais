@@ -858,6 +858,25 @@ button {
   display: none;
 }
 
+.delivery-area-note {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid rgba(141, 86, 61, 0.14);
+  border-radius: var(--radius-md);
+  background: #fffdfa;
+}
+
+.delivery-area-note strong {
+  display: block;
+  color: var(--primary-dark);
+}
+
+.delivery-area-note p {
+  margin: 0.55rem 0 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
 .checkout-help {
   margin: 1rem 0 1.1rem;
   color: var(--muted);
@@ -960,6 +979,10 @@ button {
   cursor: not-allowed;
   opacity: 0.65;
   box-shadow: none;
+}
+
+.checkout-choice-pay-button.is-hidden {
+  display: none;
 }
 
 .floating-actions {

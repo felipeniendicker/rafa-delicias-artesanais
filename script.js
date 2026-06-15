@@ -7,6 +7,7 @@ const CONFIG = {
   nomeLoja: "Rafa Delícias Artesanais",
   whatsapp: "5512988970995",
   taxaEntregaPadrao: 8,
+  valorMinimoFreteGratis: 120,
   // Futuramente os horários também podem vir do painel administrativo.
   horarioAtendimento: {
     segundaASexta: {
@@ -141,6 +142,14 @@ function obterObservacaoEncomenda() {
   return "📌 Observação sobre encomenda: Este pedido contém item sob encomenda ou grande quantidade. A Rafa Delícias Artesanais poderá entrar em contato para confirmar detalhes antes da produção.";
 }
 
+function obterObservacaoAreaEntrega() {
+  if (!isEntregaSelecionada() || isBairroEntregaAtendido()) {
+    return "";
+  }
+
+  return "âš ï¸ Bairro informado nÃ£o estÃ¡ na Ã¡rea de entrega cadastrada. Solicito confirmaÃ§Ã£o de disponibilidade.";
+}
+
 function converterHorarioParaMinutos(horario) {
   const [horas, minutos] = String(horario || "0:0").split(":").map(Number);
 
@@ -218,15 +227,18 @@ function normalizarTexto(texto) {
 function obterFreteEntrega() {
   const bairroInformado = customerDistrictInput ? customerDistrictInput.value.trim() : "";
   const bairroNormalizado = normalizarTexto(bairroInformado);
-  const taxaPadrao = Number(CONFIG.taxaEntregaPadrao || 0);
+  const subtotalProdutos = calcularSubtotalProdutos();
+  const freteGratisAtivo = subtotalProdutos >= Number(CONFIG.valorMinimoFreteGratis || 0);
 
   if (!bairroNormalizado) {
     return {
       bairroOriginal: bairroInformado,
       bairroNormalizado,
-      valor: taxaPadrao,
+      valor: 0,
       encontrado: false,
-      usandoPadrao: true
+      atendido: false,
+      usandoPadrao: false,
+      freteGratis: false
     };
   }
 
@@ -236,18 +248,22 @@ function obterFreteEntrega() {
     return {
       bairroOriginal: bairroInformado,
       bairroNormalizado,
-      valor: Number(fretesPorBairro[bairroNormalizado] || 0),
+      valor: freteGratisAtivo ? 0 : Number(fretesPorBairro[bairroNormalizado] || 0),
       encontrado: true,
-      usandoPadrao: false
+      atendido: true,
+      usandoPadrao: false,
+      freteGratis: freteGratisAtivo
     };
   }
 
   return {
     bairroOriginal: bairroInformado,
     bairroNormalizado,
-    valor: taxaPadrao,
+    valor: 0,
     encontrado: false,
-    usandoPadrao: true
+    atendido: false,
+    usandoPadrao: false,
+    freteGratis: false
   };
 }
 
@@ -894,6 +910,257 @@ function atualizarCarrinho() {
       </article>
     `;
   }).join("");
+}
+
+// As regras de frete e área de entrega ainda estão no front-end.
+// Futuramente elas podem ser administradas pelo painel e carregadas do backend.
+function obterFreteEntrega() {
+  const bairroInformado = customerDistrictInput ? customerDistrictInput.value.trim() : "";
+  const bairroNormalizado = normalizarTexto(bairroInformado);
+  const subtotalProdutos = calcularSubtotalProdutos();
+  const freteGratisAtivo = subtotalProdutos >= Number(CONFIG.valorMinimoFreteGratis || 0);
+
+  if (!bairroNormalizado) {
+    return {
+      bairroOriginal: bairroInformado,
+      bairroNormalizado,
+      valor: 0,
+      encontrado: false,
+      atendido: false,
+      usandoPadrao: false,
+      freteGratis: false
+    };
+  }
+
+  const fretesPorBairro = CONFIG.fretesPorBairro || {};
+
+  if (Object.prototype.hasOwnProperty.call(fretesPorBairro, bairroNormalizado)) {
+    return {
+      bairroOriginal: bairroInformado,
+      bairroNormalizado,
+      valor: freteGratisAtivo ? 0 : Number(fretesPorBairro[bairroNormalizado] || 0),
+      encontrado: true,
+      atendido: true,
+      usandoPadrao: false,
+      freteGratis: freteGratisAtivo
+    };
+  }
+
+  return {
+    bairroOriginal: bairroInformado,
+    bairroNormalizado,
+    valor: 0,
+    encontrado: false,
+    atendido: false,
+    usandoPadrao: false,
+    freteGratis: false
+  };
+}
+
+function atualizarMensagemFrete() {
+  if (!districtShippingFeedback) {
+    return;
+  }
+
+  if (!isEntregaSelecionada()) {
+    districtShippingFeedback.textContent = "";
+    districtShippingFeedback.classList.remove("is-warning");
+    return;
+  }
+
+  const freteInfo = obterFreteEntrega();
+
+  if (!freteInfo.bairroOriginal) {
+    districtShippingFeedback.textContent = "Informe um bairro para verificar a área de entrega.";
+    districtShippingFeedback.classList.remove("is-warning");
+    return;
+  }
+
+  if (!freteInfo.atendido) {
+    districtShippingFeedback.textContent = "No momento não fazemos entrega nesse bairro. Você pode escolher retirada ou finalizar pelo WhatsApp para consultar disponibilidade.";
+    districtShippingFeedback.classList.add("is-warning");
+    return;
+  }
+
+  if (freteInfo.freteGratis) {
+    districtShippingFeedback.textContent = `Frete grátis aplicado para pedidos acima de ${formatarMoeda(CONFIG.valorMinimoFreteGratis)}.`;
+    districtShippingFeedback.classList.remove("is-warning");
+    return;
+  }
+
+  districtShippingFeedback.textContent = `Frete para ${freteInfo.bairroOriginal}: ${formatarMoeda(freteInfo.valor)}`;
+  districtShippingFeedback.classList.remove("is-warning");
+}
+
+function calcularFrete() {
+  return isEntregaSelecionada() ? obterFreteEntrega().valor : 0;
+}
+
+function isBairroEntregaAtendido() {
+  if (!isEntregaSelecionada()) {
+    return true;
+  }
+
+  return obterFreteEntrega().atendido;
+}
+
+function obterObservacaoAreaEntrega() {
+  if (!isEntregaSelecionada() || isBairroEntregaAtendido()) {
+    return "";
+  }
+
+  return "⚠️ Bairro informado não está na área de entrega cadastrada. Solicito confirmação de disponibilidade.";
+}
+
+function montarPayloadPedidoBackend(dadosCheckout) {
+  const tipoRecebimentoFormatado = dadosCheckout.tipoRecebimento === "entrega" ? "Entrega" : "Retirada";
+  const observacaoEncomenda = obterObservacaoEncomenda();
+  const observacaoAreaEntrega = obterObservacaoAreaEntrega();
+  const observacoesCompletas = [dadosCheckout.observacoes, observacaoEncomenda, observacaoAreaEntrega].filter(Boolean).join("\n\n");
+
+  return {
+    nome_cliente: dadosCheckout.nome,
+    telefone: dadosCheckout.telefone,
+    tipo_recebimento: tipoRecebimentoFormatado,
+    cep: dadosCheckout.cep || null,
+    rua: dadosCheckout.rua || null,
+    numero: dadosCheckout.numero || null,
+    bairro: dadosCheckout.bairro || null,
+    complemento: dadosCheckout.complemento || null,
+    referencia: dadosCheckout.referencia || null,
+    data_desejada: dadosCheckout.dataDesejada,
+    horario_desejado: dadosCheckout.horarioDesejado,
+    observacoes: observacoesCompletas || null,
+    subtotal: calcularSubtotalProdutos(),
+    frete: calcularFrete(),
+    total: calcularTotalFinal(),
+    itens: carrinho.map((produto) => ({
+      produto_nome: produto.nome,
+      quantidade: produto.quantidade,
+      preco_unitario: produto.preco,
+      subtotal: produto.preco * produto.quantidade
+    }))
+  };
+}
+
+function montarContextoFinalizacao(dadosCheckout) {
+  const subtotalProdutos = calcularSubtotalProdutos();
+  const freteInfo = obterFreteEntrega();
+  const frete = calcularFrete();
+  const totalPedido = calcularTotalFinal();
+  const statusAtendimento = obterStatusAtendimento();
+  const observacaoEncomenda = obterObservacaoEncomenda();
+  const observacaoAreaEntrega = obterObservacaoAreaEntrega();
+  const payloadPedido = montarPayloadPedidoBackend(dadosCheckout);
+  const listaProdutos = montarLinhasPedido();
+  const recebimento = dadosCheckout.tipoRecebimento === "entrega" ? "Entrega" : "Retirada";
+  const enderecoEntrega = dadosCheckout.tipoRecebimento === "entrega"
+    ? `\n\nEndereço de entrega:\n${montarEnderecoEntrega(dadosCheckout)}`
+    : "";
+  const observacoes = dadosCheckout.observacoes
+    ? `\nObservações: ${dadosCheckout.observacoes}`
+    : "";
+  const observacaoEncomendaMensagem = observacaoEncomenda
+    ? `\n\n${observacaoEncomenda}`
+    : "";
+  const observacaoAreaEntregaMensagem = observacaoAreaEntrega
+    ? `\n\n${observacaoAreaEntrega}`
+    : "";
+
+  return {
+    dadosCheckout,
+    subtotalProdutos,
+    freteInfo,
+    frete,
+    totalPedido,
+    statusAtendimento,
+    payloadPedido,
+    listaProdutos,
+    recebimento,
+    enderecoEntrega,
+    observacoes,
+    observacaoEncomendaMensagem,
+    observacaoAreaEntregaMensagem,
+    assinatura: gerarAssinaturaPedido(payloadPedido)
+  };
+}
+
+function atualizarEstadoBotoesFinalizacao() {
+  if (payOnlineButton) {
+    const podePagarOnline = Boolean(pedidoFinalizacaoAtual?.pedidoId) && pedidoFinalizacaoAtual?.freteInfo?.atendido !== false;
+    payOnlineButton.disabled = !podePagarOnline;
+    payOnlineButton.classList.toggle("is-hidden", pedidoFinalizacaoAtual?.freteInfo?.atendido === false);
+  }
+}
+
+function abrirWhatsAppComContexto(contexto) {
+  const numeroPedidoMensagem = contexto.pedidoId ? `Número do pedido: #${contexto.pedidoId}\n` : "";
+  const mensagem = `Olá! Vim pelo site da ${CONFIG.nomeLoja} e gostaria de fazer um pedido:\n\n${numeroPedidoMensagem}Nome: ${contexto.dadosCheckout.nome}\nTelefone: ${contexto.dadosCheckout.telefone}\nTipo de recebimento: ${contexto.recebimento}${contexto.enderecoEntrega}\n\nData desejada: ${formatarDataParaMensagem(contexto.dadosCheckout.dataDesejada)}\nHorário desejado: ${contexto.dadosCheckout.horarioDesejado}${contexto.observacoes}\n\nItens do pedido:\n${contexto.listaProdutos}\n\nSubtotal dos produtos: ${formatarMoeda(contexto.subtotalProdutos)}\nFrete: ${formatarMoeda(contexto.frete)}\nTotal final: ${formatarMoeda(contexto.totalPedido)}${contexto.observacaoEncomendaMensagem}${contexto.observacaoAreaEntregaMensagem}\n\nGostaria de confirmar a disponibilidade e combinar a ${contexto.dadosCheckout.tipoRecebimento === "entrega" ? "entrega" : "retirada"}.\n\n---\n\nPedido realizado pelo site da ${CONFIG.nomeLoja}.\n\n${contexto.statusAtendimento.mensagemWhatsApp}`;
+  const mensagemCodificada = encodeURIComponent(mensagem);
+  const urlWhatsApp = `https://wa.me/${CONFIG.whatsapp}?text=${mensagemCodificada}`;
+
+  window.open(urlWhatsApp, "_blank");
+}
+
+async function prepararFinalizacaoPedido() {
+  if (carrinho.length === 0) {
+    alert("Adicione pelo menos um produto antes de finalizar o pedido.");
+    return;
+  }
+
+  const dadosCheckout = obterDadosCheckout();
+  const camposFaltando = validarCheckout(dadosCheckout);
+
+  if (camposFaltando.length > 0) {
+    alert(`Preencha os campos obrigatórios antes de finalizar o pedido: ${camposFaltando.join(", ")}.`);
+    return;
+  }
+
+  const contextoFinalizacao = montarContextoFinalizacao(dadosCheckout);
+
+  if (pedidoFinalizacaoAtual && pedidoFinalizacaoAtual.assinatura === contextoFinalizacao.assinatura) {
+    atualizarFeedbackFinalizacao(
+      pedidoFinalizacaoAtual.pedidoId
+        ? "Seu pedido foi registrado. Escolha uma das opções abaixo para concluir."
+        : "Não foi possível registrar o pedido no sistema agora. Você ainda pode finalizar pelo WhatsApp."
+    );
+    atualizarEstadoBotoesFinalizacao();
+    abrirModalFinalizacao();
+    return;
+  }
+
+  pedidoFinalizacaoAtual = {
+    ...contextoFinalizacao,
+    pedidoId: null
+  };
+
+  if (dadosCheckout.tipoRecebimento === "entrega" && !contextoFinalizacao.freteInfo.atendido) {
+    atualizarFeedbackFinalizacao("Bairro fora da área de entrega cadastrada. Você pode finalizar pelo WhatsApp para consultar disponibilidade ou trocar para retirada.");
+    atualizarEstadoBotoesFinalizacao();
+    abrirModalFinalizacao();
+    return;
+  }
+
+  try {
+    const pedidoId = await salvarPedidoBackend(contextoFinalizacao.payloadPedido);
+
+    pedidoFinalizacaoAtual = {
+      ...contextoFinalizacao,
+      pedidoId
+    };
+
+    atualizarFeedbackFinalizacao("Seu pedido foi registrado. Escolha uma das opções abaixo para concluir.");
+  } catch (error) {
+    pedidoFinalizacaoAtual = {
+      ...contextoFinalizacao,
+      pedidoId: null
+    };
+
+    atualizarFeedbackFinalizacao("Não foi possível registrar o pedido no sistema agora. Você ainda pode finalizar pelo WhatsApp.");
+  }
+
+  atualizarEstadoBotoesFinalizacao();
+  abrirModalFinalizacao();
 }
 
 // Os botões dos produtos já expõem data-id, data-nome e data-preco para futuras integrações.
