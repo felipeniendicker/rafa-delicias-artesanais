@@ -26,9 +26,14 @@
           </p>
         </div>
 
-        <button class="refresh-button" id="refreshOrdersButton" type="button">
-          Atualizar pedidos
-        </button>
+        <div class="admin-actions">
+          <button class="refresh-button" id="refreshOrdersButton" type="button">
+            Atualizar pedidos
+          </button>
+          <button class="logout-button" id="adminLogoutButton" type="button">
+            Sair
+          </button>
+        </div>
       </header>
 
       <section class="orders-panel" aria-labelledby="orders-title">
@@ -67,7 +72,7 @@
           </div>
         </section>
 
-        <!-- Futuramente esta página deve ser protegida por autenticação antes de ir para produção. -->
+        <!-- Nesta etapa a proteção visual fica no front-end, mas os dados só são liberados pelas rotas protegidas com JWT. -->
         <div class="orders-list" id="ordersList" aria-live="polite"></div>
       </section>
     </section>

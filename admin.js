@@ -3,6 +3,8 @@ const ordersFeedback = document.querySelector("#ordersFeedback");
 const refreshOrdersButton = document.querySelector("#refreshOrdersButton");
 const statusFilter = document.querySelector("#statusFilter");
 const searchFilter = document.querySelector("#searchFilter");
+const adminLogoutButton = document.querySelector("#adminLogoutButton");
+const ADMIN_TOKEN_STORAGE_KEY = "rafaDeliciasAdminToken";
 const STATUS_OPTIONS = [
   { value: "recebido", label: "Recebido" },
   { value: "em_producao", label: "Em produção" },
@@ -20,6 +22,40 @@ const PAYMENT_STATUS_LABELS = {
   CONTESTADO: "Contestado"
 };
 let todosOsPedidos = [];
+
+function obterTokenAdmin() {
+  return localStorage.getItem(ADMIN_TOKEN_STORAGE_KEY);
+}
+
+function limparSessaoAdmin() {
+  localStorage.removeItem(ADMIN_TOKEN_STORAGE_KEY);
+}
+
+function redirecionarParaLogin() {
+  window.location.href = "./login.html";
+}
+
+function tratarRespostaNaoAutorizada(response) {
+  if (response.status === 401) {
+    limparSessaoAdmin();
+    redirecionarParaLogin();
+    return true;
+  }
+
+  return false;
+}
+
+function obterHeadersAutenticados(incluirContentType = false) {
+  const headers = {
+    Authorization: `Bearer ${obterTokenAdmin()}`
+  };
+
+  if (incluirContentType) {
+    headers["Content-Type"] = "application/json";
+  }
+
+  return headers;
+}
 
 function formatarMoeda(valor) {
   return new Intl.NumberFormat("pt-BR", {
@@ -252,11 +288,13 @@ function aplicarFiltros() {
 async function atualizarStatusPedido(orderId, status, selectElement) {
   const response = await fetch(`/api/pedidos/${orderId}/status`, {
     method: "PATCH",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    headers: obterHeadersAutenticados(true),
     body: JSON.stringify({ status })
   });
+
+  if (tratarRespostaNaoAutorizada(response)) {
+    throw new Error("Sessão expirada. Faça login novamente.");
+  }
 
   const data = await response.json();
 
@@ -291,7 +329,14 @@ async function carregarPedidos() {
   ordersFeedback.textContent = "Carregando pedidos...";
 
   try {
-    const response = await fetch("/api/pedidos");
+    const response = await fetch("/api/pedidos", {
+      headers: obterHeadersAutenticados()
+    });
+
+    if (tratarRespostaNaoAutorizada(response)) {
+      return;
+    }
+
     const data = await response.json();
 
     if (!response.ok || !data?.sucesso) {
@@ -313,6 +358,13 @@ async function carregarPedidos() {
 if (refreshOrdersButton) {
   refreshOrdersButton.addEventListener("click", () => {
     carregarPedidos();
+  });
+}
+
+if (adminLogoutButton) {
+  adminLogoutButton.addEventListener("click", () => {
+    limparSessaoAdmin();
+    redirecionarParaLogin();
   });
 }
 
@@ -356,4 +408,8 @@ if (ordersList) {
   });
 }
 
-carregarPedidos();
+if (!obterTokenAdmin()) {
+  redirecionarParaLogin();
+} else {
+  carregarPedidos();
+}
