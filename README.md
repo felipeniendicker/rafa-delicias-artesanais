@@ -1,26 +1,51 @@
 # Rafa Delícias Artesanais
 
-Mini loja online artesanal com catálogo de produtos, carrinho em JavaScript puro e finalização do pedido pelo WhatsApp.
+Mini sistema de pedidos online para confeitaria artesanal, com carrinho, checkout, integração com WhatsApp, backend Node/Express, PostgreSQL, painel administrativo e preparação para pagamento online com Mercado Pago.
 
 ## Funcionalidades
 
-- Catálogo online
-- Carrinho de compras
-- Pedido pelo WhatsApp
-- Persistência com localStorage
-- Regra mínima para cupcakes
-- Cobertura opcional para bolos
+- Catálogo online de produtos artesanais
+- Carrinho de compras com persistência em `localStorage`
+- Checkout com entrega ou retirada
+- Finalização pelo WhatsApp
+- Salvamento de pedidos no PostgreSQL
+- Painel administrativo em `/admin.html`
+- Atualização de status do pedido
+- Exibição de status de pagamento
+- Preparação para pagamento online com Mercado Pago
 
 ## Tecnologias
 
 - HTML5
 - CSS3
 - JavaScript
-- localStorage
+- Node.js
+- Express
+- PostgreSQL
+- Mercado Pago
+- Railway
 
 ## Como executar
 
-Abra o arquivo `index.html` no navegador.
+Agora o projeto roda como aplicação unificada em Node/Express.
+
+Instalação:
+
+```bash
+npm install
+```
+
+Execução:
+
+```bash
+npm start
+```
+
+Acesso local:
+
+- Loja: `http://localhost:3000`
+- Painel: `http://localhost:3000/admin.html`
+- API Health: `http://localhost:3000/api/health`
 
 ## Estrutura do projeto
 
@@ -28,54 +53,81 @@ Abra o arquivo `index.html` no navegador.
 /
 ├── .gitignore
 ├── 404.html
+├── admin.css
+├── admin.html
+├── admin.js
+├── backend/
+│   ├── controllers/
+│   ├── database/
+│   ├── routes/
+│   ├── services/
+│   ├── .env.example
+│   └── server.js
+├── imagens/
 ├── index.html
+├── package.json
+├── pagamento-falha.html
+├── pagamento-pendente.html
+├── pagamento-sucesso.html
 ├── README.md
 ├── script.js
-├── style.css
-└── imagens/
-    ├── bento-cake.jpg
-    ├── bolo-cenoura.jpg
-    ├── bolo-chocolate.jpg
-    ├── bolo-coco.jpg
-    ├── bolo-fuba.jpg
-    ├── bolo-laranja.jpg
-    ├── bolo-limao.jpg
-    ├── bolo-milho.jpg
-    ├── cookie-premium.jpg
-    ├── cookie-tradicional.jpg
-    ├── cupcake-artesanal.jpg
-    ├── pao-artesanal.jpg
-    ├── pao-calabresa.jpg
-    ├── pao-coco.jpg
-    ├── pao-delicia.jpg
-    ├── pao-goiabada.jpg
-    ├── pao-presunto-queijo.jpg
-    ├── torta-chocolate.jpg
-    ├── torta-limao.jpg
-    ├── torta-maracuja.jpg
-    └── torta-morango.jpg
+└── style.css
 ```
 
-## Publicação
+## Variáveis de ambiente
 
-Este projeto é estático e pode ser hospedado em serviços como GitHub Pages, Railway, Netlify e Vercel.
+As variáveis devem ser configuradas no arquivo `.env` local e também no painel do Railway, sem expor valores reais no repositório.
 
-Para publicar:
+Variáveis necessárias:
 
-1. Envie os arquivos do projeto para o serviço escolhido.
-2. Garanta que `index.html` esteja na raiz publicada.
-3. Mantenha a pasta `imagens/` junto dos demais arquivos estáticos.
-4. Depois da publicação, o site poderá ser acessado normalmente pelo navegador.
+- `DATABASE_URL`
+- `MERCADO_PAGO_ACCESS_TOKEN`
+- `MERCADO_PAGO_PUBLIC_KEY`
+- `APP_BASE_URL`
 
-## Checklist
+Exemplo de responsabilidade de cada uma:
 
-- Projeto pronto para GitHub
-- Projeto pronto para Railway
-- Projeto pronto para domínio próprio
+- `DATABASE_URL`: conexão com o PostgreSQL
+- `MERCADO_PAGO_ACCESS_TOKEN`: token secreto usado no backend
+- `MERCADO_PAGO_PUBLIC_KEY`: chave pública para etapas futuras do front-end
+- `APP_BASE_URL`: domínio base da aplicação, usado em retornos e integrações
+
+## API e rotas principais
+
+- `/` abre a loja
+- `/admin.html` abre o painel administrativo
+- `/api/health` verifica se a API está online
+- `/api/...` concentra as rotas do backend
+
+## Deploy no Railway
+
+O deploy agora é unificado: loja, painel e API rodam no mesmo serviço Node/Express.
+
+Configuração recomendada:
+
+1. Conectar o repositório ao Railway.
+2. Usar a raiz do projeto como `Root Directory`.
+3. Garantir que o Railway execute:
+
+```bash
+npm start
+```
+
+4. Configurar no painel do Railway:
+   - `DATABASE_URL`
+   - `MERCADO_PAGO_ACCESS_TOKEN`
+   - `MERCADO_PAGO_PUBLIC_KEY`
+   - `APP_BASE_URL`
+
+Após o deploy:
+
+- o mesmo domínio servirá a loja
+- o mesmo domínio servirá o painel administrativo
+- o mesmo domínio servirá a API
 
 ## Observações
 
-- Esta é uma mini loja com finalização do pedido pelo WhatsApp.
-- O número comercial usado no site está configurado no arquivo `script.js`.
-- As imagens dos produtos devem ficar dentro da pasta `imagens/` com os nomes já esperados pelo catálogo.
-- O site funciona localmente sem backend. Recursos externos, como WhatsApp, Instagram e Google Fonts, dependem de internet.
+- O fluxo de WhatsApp continua como alternativa de finalização.
+- O painel administrativo ainda não possui autenticação.
+- O webhook do Mercado Pago já está preparado e pode evoluir nas próximas etapas.
+- Não exponha tokens reais no código nem em commits.
