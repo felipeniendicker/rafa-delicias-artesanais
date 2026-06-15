@@ -1,6 +1,8 @@
 const ordersList = document.querySelector("#ordersList");
 const ordersFeedback = document.querySelector("#ordersFeedback");
 const refreshOrdersButton = document.querySelector("#refreshOrdersButton");
+const statusFilter = document.querySelector("#statusFilter");
+const searchFilter = document.querySelector("#searchFilter");
 const STATUS_OPTIONS = [
   { value: "recebido", label: "Recebido" },
   { value: "em_producao", label: "Em produção" },
@@ -8,6 +10,7 @@ const STATUS_OPTIONS = [
   { value: "entregue", label: "Entregue" },
   { value: "cancelado", label: "Cancelado" }
 ];
+let todosOsPedidos = [];
 
 function formatarMoeda(valor) {
   return new Intl.NumberFormat("pt-BR", {
@@ -84,16 +87,46 @@ function montarOpcoesStatus(statusAtual) {
   `).join("");
 }
 
+function obterPedidosFiltrados() {
+  const statusSelecionado = statusFilter ? statusFilter.value : "todos";
+  const termoBusca = searchFilter ? searchFilter.value.trim().toLowerCase() : "";
+
+  return todosOsPedidos.filter((pedido) => {
+    const correspondeStatus = statusSelecionado === "todos" || pedido.status === statusSelecionado;
+
+    if (!correspondeStatus) {
+      return false;
+    }
+
+    if (!termoBusca) {
+      return true;
+    }
+
+    const camposBusca = [
+      String(pedido.id || ""),
+      pedido.nome_cliente || "",
+      pedido.telefone || ""
+    ].map((valor) => valor.toLowerCase());
+
+    return camposBusca.some((valor) => valor.includes(termoBusca));
+  });
+}
+
 function renderizarPedidos(pedidos) {
   if (!ordersList || !ordersFeedback) {
     return;
   }
 
   if (!Array.isArray(pedidos) || pedidos.length === 0) {
-    ordersFeedback.textContent = "Nenhum pedido encontrado.";
+    const usandoFiltros = (statusFilter && statusFilter.value !== "todos")
+      || (searchFilter && searchFilter.value.trim() !== "");
+
+    ordersFeedback.textContent = usandoFiltros
+      ? "Nenhum pedido encontrado para os filtros selecionados."
+      : "Nenhum pedido encontrado.";
     ordersList.innerHTML = `
       <div class="orders-empty">
-        <p>Nenhum pedido encontrado.</p>
+        <p>${usandoFiltros ? "Nenhum pedido encontrado para os filtros selecionados." : "Nenhum pedido encontrado."}</p>
       </div>
     `;
     return;
@@ -179,6 +212,10 @@ function renderizarPedidos(pedidos) {
   `).join("");
 }
 
+function aplicarFiltros() {
+  renderizarPedidos(obterPedidosFiltrados());
+}
+
 async function atualizarStatusPedido(orderId, status, selectElement) {
   const response = await fetch(`/api/pedidos/${orderId}/status`, {
     method: "PATCH",
@@ -196,14 +233,21 @@ async function atualizarStatusPedido(orderId, status, selectElement) {
 
   const orderCard = selectElement.closest(".order-card");
   const statusLabel = orderCard ? orderCard.querySelector("[data-status-label]") : null;
+  const pedidoEmMemoria = todosOsPedidos.find((pedido) => String(pedido.id) === String(orderId));
 
   if (statusLabel) {
     statusLabel.textContent = formatarStatus(status);
   }
 
+  if (pedidoEmMemoria) {
+    pedidoEmMemoria.status = status;
+  }
+
   if (ordersFeedback) {
     ordersFeedback.textContent = data.mensagem;
   }
+
+  aplicarFiltros();
 }
 
 async function carregarPedidos() {
@@ -221,7 +265,8 @@ async function carregarPedidos() {
       throw new Error(data?.mensagem || "Não foi possível carregar os pedidos agora.");
     }
 
-    renderizarPedidos(data.pedidos);
+    todosOsPedidos = Array.isArray(data.pedidos) ? data.pedidos : [];
+    aplicarFiltros();
   } catch (error) {
     ordersFeedback.textContent = "Não foi possível carregar os pedidos agora.";
     ordersList.innerHTML = `
@@ -235,6 +280,18 @@ async function carregarPedidos() {
 if (refreshOrdersButton) {
   refreshOrdersButton.addEventListener("click", () => {
     carregarPedidos();
+  });
+}
+
+if (statusFilter) {
+  statusFilter.addEventListener("change", () => {
+    aplicarFiltros();
+  });
+}
+
+if (searchFilter) {
+  searchFilter.addEventListener("input", () => {
+    aplicarFiltros();
   });
 }
 

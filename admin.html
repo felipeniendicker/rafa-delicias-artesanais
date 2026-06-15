@@ -37,6 +37,36 @@
           <p id="ordersFeedback" class="orders-feedback">Carregando pedidos...</p>
         </div>
 
+        <section class="filters-panel" aria-labelledby="filters-title">
+          <div class="filters-heading">
+            <h3 id="filters-title">Filtros</h3>
+            <p class="filters-description">Refine a visualização sem precisar consultar a API novamente.</p>
+          </div>
+
+          <div class="filters-grid">
+            <label class="filter-field">
+              <span>Status</span>
+              <select id="statusFilter">
+                <option value="todos">Todos</option>
+                <option value="recebido">Recebido</option>
+                <option value="em_producao">Em produção</option>
+                <option value="pronto">Pronto</option>
+                <option value="entregue">Entregue</option>
+                <option value="cancelado">Cancelado</option>
+              </select>
+            </label>
+
+            <label class="filter-field">
+              <span>Busca</span>
+              <input
+                type="search"
+                id="searchFilter"
+                placeholder="Buscar por cliente, telefone ou número do pedido"
+              >
+            </label>
+          </div>
+        </section>
+
         <!-- Futuramente esta página deve ser protegida por autenticação antes de ir para produção. -->
         <div class="orders-list" id="ordersList" aria-live="polite"></div>
       </section>
