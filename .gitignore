@@ -25,3 +25,11 @@ pnpm-debug.log*
 
 # Cache local
 .cache/
+
+# Variáveis de ambiente
+.env
+.env.*
+!.env.example
+
+# Node.js
+node_modules/
