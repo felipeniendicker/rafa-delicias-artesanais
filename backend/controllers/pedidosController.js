@@ -204,6 +204,7 @@ async function listarPedidos(request, response) {
         p.frete,
         p.total,
         p.status,
+        p.status_pagamento,
         p.criado_em,
         COALESCE(
           json_agg(

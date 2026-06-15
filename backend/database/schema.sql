@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS pedidos (
   frete NUMERIC(10,2) NOT NULL,
   total NUMERIC(10,2) NOT NULL,
   status VARCHAR(30) DEFAULT 'recebido',
+  status_pagamento VARCHAR(30) DEFAULT 'PENDENTE',
   criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
