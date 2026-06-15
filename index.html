@@ -805,6 +805,31 @@
     </section>
   </main>
 
+  <!-- Modal simples de escolha de finalização.
+       Ele aparece depois que o pedido é validado e salvo, evitando duplicidade no backend. -->
+  <div class="checkout-choice-modal is-hidden" id="checkoutChoiceModal" aria-hidden="true" role="dialog" aria-labelledby="checkoutChoiceTitle">
+    <div class="checkout-choice-backdrop" id="checkoutChoiceBackdrop"></div>
+    <div class="checkout-choice-card">
+      <button class="checkout-choice-close" id="checkoutChoiceCloseButton" type="button" aria-label="Fechar opções de finalização">
+        Fechar
+      </button>
+      <p class="section-kicker">Última etapa</p>
+      <h2 id="checkoutChoiceTitle">Como deseja finalizar seu pedido?</h2>
+      <p class="checkout-choice-text" id="checkoutChoiceDescription">
+        Seu pedido foi registrado. Escolha uma das opções abaixo para concluir.
+      </p>
+      <p class="checkout-choice-feedback" id="checkoutChoiceFeedback" aria-live="polite"></p>
+      <div class="checkout-choice-actions">
+        <button class="finalize-button checkout-choice-pay-button" id="payOnlineButton" type="button">
+          Pagar online
+        </button>
+        <button class="clear-order-button checkout-choice-whatsapp-button" id="finishWithWhatsAppButton" type="button">
+          Finalizar pelo WhatsApp
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Botões flutuantes para facilitar acesso rápido ao carrinho e ao topo -->
   <div class="floating-actions" aria-label="Ações rápidas">
     <button class="floating-button floating-cart-button" id="floatingCartButton" type="button" aria-label="Ir para o carrinho">

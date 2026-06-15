@@ -795,6 +795,88 @@ button {
   top: 1rem;
 }
 
+.checkout-choice-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.checkout-choice-modal.is-hidden {
+  display: none;
+}
+
+.checkout-choice-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(61, 42, 35, 0.44);
+  backdrop-filter: blur(6px);
+}
+
+.checkout-choice-card {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 34rem);
+  padding: 1.6rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 253, 249, 0.96);
+  box-shadow: 0 26px 60px rgba(84, 52, 39, 0.22);
+}
+
+.checkout-choice-card h2 {
+  margin: 0;
+  font-family: "DM Serif Text", serif;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  line-height: 1.08;
+}
+
+.checkout-choice-close {
+  display: inline-flex;
+  margin-left: auto;
+  margin-bottom: 1rem;
+  padding: 0.7rem 0.95rem;
+  border: 1px solid rgba(141, 86, 61, 0.18);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.checkout-choice-text,
+.checkout-choice-feedback {
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.checkout-choice-text {
+  margin: 1rem 0 0;
+}
+
+.checkout-choice-feedback {
+  min-height: 1.6rem;
+  margin: 0.9rem 0 0;
+}
+
+.checkout-choice-actions {
+  display: grid;
+  gap: 0.8rem;
+  margin-top: 1.35rem;
+}
+
+.checkout-choice-pay-button,
+.checkout-choice-whatsapp-button {
+  margin-top: 0;
+}
+
+.checkout-choice-pay-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+  box-shadow: none;
+}
+
 .floating-actions {
   position: fixed;
   right: 1rem;
@@ -939,7 +1021,8 @@ button {
   .cart-panel,
   .checkout-card,
   .summary-card,
-  .cart-item {
+  .cart-item,
+  .checkout-choice-card {
     border-radius: 22px;
   }
 

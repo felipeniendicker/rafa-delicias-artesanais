@@ -65,11 +65,18 @@ const desiredDateInput = document.querySelector("#desiredDate");
 const desiredTimeInput = document.querySelector("#desiredTime");
 const customerNotesInput = document.querySelector("#customerNotes");
 const deliveryTypeInputs = document.querySelectorAll('input[name="deliveryType"]');
+const checkoutChoiceModal = document.querySelector("#checkoutChoiceModal");
+const checkoutChoiceBackdrop = document.querySelector("#checkoutChoiceBackdrop");
+const checkoutChoiceCloseButton = document.querySelector("#checkoutChoiceCloseButton");
+const checkoutChoiceFeedback = document.querySelector("#checkoutChoiceFeedback");
+const payOnlineButton = document.querySelector("#payOnlineButton");
+const finishWithWhatsAppButton = document.querySelector("#finishWithWhatsAppButton");
 
 const CHAVE_CARRINHO_STORAGE = "rafaDeliciasCarrinho";
 
 // Estrutura simples em memória. Ela segue compatível com localStorage e com as regras já existentes.
 const carrinho = [];
+let pedidoFinalizacaoAtual = null;
 
 // Formata valores monetários em Real para manter a apresentação consistente.
 function formatarMoeda(valor) {
@@ -368,6 +375,38 @@ function montarPayloadPedidoBackend(dadosCheckout) {
   };
 }
 
+function gerarAssinaturaPedido(dadosPedido) {
+  return JSON.stringify(dadosPedido);
+}
+
+function montarContextoFinalizacao(dadosCheckout) {
+  const subtotalProdutos = calcularSubtotalProdutos();
+  const frete = calcularFrete();
+  const totalPedido = calcularTotalFinal();
+  const payloadPedido = montarPayloadPedidoBackend(dadosCheckout);
+  const listaProdutos = montarLinhasPedido();
+  const recebimento = dadosCheckout.tipoRecebimento === "entrega" ? "Entrega" : "Retirada";
+  const enderecoEntrega = dadosCheckout.tipoRecebimento === "entrega"
+    ? `\n\nEndereço de entrega:\n${montarEnderecoEntrega(dadosCheckout)}`
+    : "";
+  const observacoes = dadosCheckout.observacoes
+    ? `\nObservações: ${dadosCheckout.observacoes}`
+    : "";
+
+  return {
+    dadosCheckout,
+    subtotalProdutos,
+    frete,
+    totalPedido,
+    payloadPedido,
+    listaProdutos,
+    recebimento,
+    enderecoEntrega,
+    observacoes,
+    assinatura: gerarAssinaturaPedido(payloadPedido)
+  };
+}
+
 // Envia o pedido para a API em JSON e devolve o número criado no banco.
 // Se a API falhar, a função lança erro para o fluxo principal decidir o fallback.
 async function salvarPedidoBackend(dadosPedido) {
@@ -453,9 +492,70 @@ function limparCarrinho() {
   atualizarCarrinho();
 }
 
-// Gera a mensagem completa e abre o WhatsApp com encodeURIComponent, sem limpar o carrinho.
-// A nova etapa de checkout complementa o pedido com dados do cliente, entrega ou retirada e observações.
-async function enviarPedidoParaWhatsApp() {
+function abrirModalFinalizacao() {
+  if (!checkoutChoiceModal) {
+    return;
+  }
+
+  checkoutChoiceModal.classList.remove("is-hidden");
+  checkoutChoiceModal.setAttribute("aria-hidden", "false");
+}
+
+function fecharModalFinalizacao() {
+  if (!checkoutChoiceModal) {
+    return;
+  }
+
+  checkoutChoiceModal.classList.add("is-hidden");
+  checkoutChoiceModal.setAttribute("aria-hidden", "true");
+}
+
+function atualizarFeedbackFinalizacao(mensagem = "") {
+  if (checkoutChoiceFeedback) {
+    checkoutChoiceFeedback.textContent = mensagem;
+  }
+}
+
+function atualizarEstadoBotoesFinalizacao() {
+  if (payOnlineButton) {
+    payOnlineButton.disabled = !pedidoFinalizacaoAtual?.pedidoId;
+  }
+}
+
+function abrirWhatsAppComContexto(contexto) {
+  const numeroPedidoMensagem = contexto.pedidoId ? `Número do pedido: #${contexto.pedidoId}\n` : "";
+  const mensagem = `Olá! Vim pelo site da ${CONFIG.nomeLoja} e gostaria de fazer um pedido:\n\n${numeroPedidoMensagem}Nome: ${contexto.dadosCheckout.nome}\nTelefone: ${contexto.dadosCheckout.telefone}\nTipo de recebimento: ${contexto.recebimento}${contexto.enderecoEntrega}\n\nData desejada: ${formatarDataParaMensagem(contexto.dadosCheckout.dataDesejada)}\nHorário desejado: ${contexto.dadosCheckout.horarioDesejado}${contexto.observacoes}\n\nItens do pedido:\n${contexto.listaProdutos}\n\nSubtotal dos produtos: ${formatarMoeda(contexto.subtotalProdutos)}\nFrete: ${formatarMoeda(contexto.frete)}\nTotal final: ${formatarMoeda(contexto.totalPedido)}\n\nGostaria de confirmar a disponibilidade e combinar a ${contexto.dadosCheckout.tipoRecebimento === "entrega" ? "entrega" : "retirada"}.\n\n---\n\nPedido realizado pelo site da ${CONFIG.nomeLoja}.`;
+  const mensagemCodificada = encodeURIComponent(mensagem);
+  const urlWhatsApp = `https://wa.me/${CONFIG.whatsapp}?text=${mensagemCodificada}`;
+
+  window.open(urlWhatsApp, "_blank");
+}
+
+async function criarPreferenciaPagamentoPedido(pedidoId) {
+  const response = await fetch(`${CONFIG.apiBaseUrl}/pagamentos/criar-preferencia`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ pedidoId })
+  });
+
+  let responseData = null;
+
+  try {
+    responseData = await response.json();
+  } catch (error) {
+    responseData = null;
+  }
+
+  if (!response.ok || !responseData?.sucesso) {
+    throw new Error(responseData?.mensagem || "Não foi possível iniciar o pagamento online agora.");
+  }
+
+  return responseData;
+}
+
+async function prepararFinalizacaoPedido() {
   if (carrinho.length === 0) {
     alert("Adicione pelo menos um produto antes de finalizar o pedido.");
     return;
@@ -469,32 +569,44 @@ async function enviarPedidoParaWhatsApp() {
     return;
   }
 
-  const subtotalProdutos = calcularSubtotalProdutos();
-  const frete = calcularFrete();
-  const totalPedido = calcularTotalFinal();
-  const payloadPedido = montarPayloadPedidoBackend(dadosCheckout);
-  const listaProdutos = montarLinhasPedido();
-  const recebimento = dadosCheckout.tipoRecebimento === "entrega" ? "Entrega" : "Retirada";
-  const enderecoEntrega = dadosCheckout.tipoRecebimento === "entrega"
-    ? `\n\nEndereço de entrega:\n${montarEnderecoEntrega(dadosCheckout)}`
-    : "";
-  const observacoes = dadosCheckout.observacoes
-    ? `\nObservações: ${dadosCheckout.observacoes}`
-    : "";
-  let numeroPedidoMensagem = "";
+  const contextoFinalizacao = montarContextoFinalizacao(dadosCheckout);
 
-  try {
-    const pedidoId = await salvarPedidoBackend(payloadPedido);
-    numeroPedidoMensagem = `Número do pedido: #${pedidoId}\n`;
-  } catch (error) {
-    alert("Não foi possível salvar o pedido no sistema agora. Você ainda pode finalizar normalmente pelo WhatsApp.");
+  if (pedidoFinalizacaoAtual && pedidoFinalizacaoAtual.assinatura === contextoFinalizacao.assinatura) {
+    atualizarFeedbackFinalizacao(
+      pedidoFinalizacaoAtual.pedidoId
+        ? "Seu pedido foi registrado. Escolha uma das opções abaixo para concluir."
+        : "Não foi possível registrar o pedido no sistema agora. Você ainda pode finalizar pelo WhatsApp."
+    );
+    atualizarEstadoBotoesFinalizacao();
+    abrirModalFinalizacao();
+    return;
   }
 
-  const mensagem = `Olá! Vim pelo site da ${CONFIG.nomeLoja} e gostaria de fazer um pedido:\n\n${numeroPedidoMensagem}Nome: ${dadosCheckout.nome}\nTelefone: ${dadosCheckout.telefone}\nTipo de recebimento: ${recebimento}${enderecoEntrega}\n\nData desejada: ${formatarDataParaMensagem(dadosCheckout.dataDesejada)}\nHorário desejado: ${dadosCheckout.horarioDesejado}${observacoes}\n\nItens do pedido:\n${listaProdutos}\n\nSubtotal dos produtos: ${formatarMoeda(subtotalProdutos)}\nFrete: ${formatarMoeda(frete)}\nTotal final: ${formatarMoeda(totalPedido)}\n\nGostaria de confirmar a disponibilidade e combinar a ${dadosCheckout.tipoRecebimento === "entrega" ? "entrega" : "retirada"}.\n\n---\n\nPedido realizado pelo site da ${CONFIG.nomeLoja}.`;
-  const mensagemCodificada = encodeURIComponent(mensagem);
-  const urlWhatsApp = `https://wa.me/${CONFIG.whatsapp}?text=${mensagemCodificada}`;
+  pedidoFinalizacaoAtual = {
+    ...contextoFinalizacao,
+    pedidoId: null
+  };
 
-  window.open(urlWhatsApp, "_blank");
+  try {
+    const pedidoId = await salvarPedidoBackend(contextoFinalizacao.payloadPedido);
+
+    pedidoFinalizacaoAtual = {
+      ...contextoFinalizacao,
+      pedidoId
+    };
+
+    atualizarFeedbackFinalizacao("Seu pedido foi registrado. Escolha uma das opções abaixo para concluir.");
+  } catch (error) {
+    pedidoFinalizacaoAtual = {
+      ...contextoFinalizacao,
+      pedidoId: null
+    };
+
+    atualizarFeedbackFinalizacao("Não foi possível registrar o pedido no sistema agora. Você ainda pode finalizar pelo WhatsApp.");
+  }
+
+  atualizarEstadoBotoesFinalizacao();
+  abrirModalFinalizacao();
 }
 
 function alternarBotaoTopo() {
@@ -633,7 +745,7 @@ if (cartItemsContainer) {
 
 if (finalizeOrderButton) {
   finalizeOrderButton.addEventListener("click", async () => {
-    await enviarPedidoParaWhatsApp();
+    await prepararFinalizacaoPedido();
   });
 }
 
@@ -649,6 +761,49 @@ deliveryTypeInputs.forEach((input) => {
     atualizarCarrinho();
   });
 });
+
+if (finishWithWhatsAppButton) {
+  finishWithWhatsAppButton.addEventListener("click", () => {
+    if (!pedidoFinalizacaoAtual) {
+      return;
+    }
+
+    abrirWhatsAppComContexto(pedidoFinalizacaoAtual);
+  });
+}
+
+if (payOnlineButton) {
+  payOnlineButton.addEventListener("click", async () => {
+    if (!pedidoFinalizacaoAtual?.pedidoId) {
+      atualizarFeedbackFinalizacao("Não foi possível iniciar o pagamento online agora. Você ainda pode finalizar pelo WhatsApp.");
+      return;
+    }
+
+    try {
+      const preferencia = await criarPreferenciaPagamentoPedido(pedidoFinalizacaoAtual.pedidoId);
+
+      if (!preferencia.initPoint) {
+        throw new Error("Não foi possível iniciar o pagamento online agora.");
+      }
+
+      window.location.href = preferencia.initPoint;
+    } catch (error) {
+      atualizarFeedbackFinalizacao("Não foi possível iniciar o pagamento online agora. Você ainda pode finalizar pelo WhatsApp.");
+    }
+  });
+}
+
+if (checkoutChoiceCloseButton) {
+  checkoutChoiceCloseButton.addEventListener("click", () => {
+    fecharModalFinalizacao();
+  });
+}
+
+if (checkoutChoiceBackdrop) {
+  checkoutChoiceBackdrop.addEventListener("click", () => {
+    fecharModalFinalizacao();
+  });
+}
 
 // Ações rápidas para melhorar a navegação sem alterar a lógica do pedido.
 if (floatingCartButton && cartSection) {
