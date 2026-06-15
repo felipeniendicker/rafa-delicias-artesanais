@@ -10,6 +10,15 @@ const STATUS_OPTIONS = [
   { value: "entregue", label: "Entregue" },
   { value: "cancelado", label: "Cancelado" }
 ];
+const PAYMENT_STATUS_LABELS = {
+  PENDENTE: "Pendente",
+  APROVADO: "Aprovado",
+  EM_PROCESSAMENTO: "Em processamento",
+  RECUSADO: "Recusado",
+  CANCELADO: "Cancelado",
+  REEMBOLSADO: "Reembolsado",
+  CONTESTADO: "Contestado"
+};
 let todosOsPedidos = [];
 
 function formatarMoeda(valor) {
@@ -77,6 +86,24 @@ function formatarStatus(status) {
   const option = STATUS_OPTIONS.find((item) => item.value === status);
 
   return option ? option.label : status;
+}
+
+function formatarStatusPagamento(statusPagamento) {
+  return PAYMENT_STATUS_LABELS[statusPagamento] || "Pendente";
+}
+
+function obterClasseStatusPagamento(statusPagamento) {
+  const classes = {
+    PENDENTE: "pagamento-pendente",
+    APROVADO: "pagamento-aprovado",
+    EM_PROCESSAMENTO: "pagamento-processamento",
+    RECUSADO: "pagamento-recusado",
+    CANCELADO: "pagamento-cancelado",
+    REEMBOLSADO: "pagamento-reembolsado",
+    CONTESTADO: "pagamento-contestado"
+  };
+
+  return classes[statusPagamento] || "pagamento-pendente";
 }
 
 function montarOpcoesStatus(statusAtual) {
@@ -158,6 +185,12 @@ function renderizarPedidos(pedidos) {
           <p><strong>${pedido.nome_cliente}</strong></p>
           <p class="order-meta">Telefone: ${pedido.telefone}</p>
           <p class="order-meta">Tipo: ${pedido.tipo_recebimento}</p>
+          <div class="payment-status-row">
+            <span class="payment-status-label">Pagamento:</span>
+            <span class="payment-status-badge ${obterClasseStatusPagamento(pedido.status_pagamento)}">
+              ${formatarStatusPagamento(pedido.status_pagamento)}
+            </span>
+          </div>
         </section>
 
         <section class="order-block">

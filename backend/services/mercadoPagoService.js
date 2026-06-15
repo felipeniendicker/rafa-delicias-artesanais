@@ -1,4 +1,4 @@
-const { MercadoPagoConfig, Preference } = require("mercadopago");
+const { MercadoPagoConfig, Preference, Payment } = require("mercadopago");
 
 const accessToken = process.env.MERCADO_PAGO_ACCESS_TOKEN || "";
 const baseUrl = (process.env.APP_BASE_URL || "http://localhost:3000").replace(/\/$/, "");
@@ -54,8 +54,28 @@ async function criarPreferenciaPagamento(pedido) {
   };
 }
 
+async function consultarPagamento(paymentId) {
+  validarConfiguracaoMercadoPago();
+
+  if (!mercadoPagoClient) {
+    throw new Error("MERCADO_PAGO_ACCESS_TOKEN não configurado.");
+  }
+
+  const payment = new Payment(mercadoPagoClient);
+  const paymentResponse = await payment.get({ id: paymentId });
+
+  return {
+    id: paymentResponse.id,
+    status: paymentResponse.status,
+    status_detail: paymentResponse.status_detail,
+    external_reference: paymentResponse.external_reference,
+    transaction_amount: paymentResponse.transaction_amount
+  };
+}
+
 module.exports = {
   mercadoPagoClient,
   validarConfiguracaoMercadoPago,
-  criarPreferenciaPagamento
+  criarPreferenciaPagamento,
+  consultarPagamento
 };

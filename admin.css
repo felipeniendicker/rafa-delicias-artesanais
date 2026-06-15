@@ -256,6 +256,74 @@ button {
   margin: 0.35rem 0 0;
 }
 
+.payment-status-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+  margin-top: 0.9rem;
+}
+
+.payment-status-label {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: var(--primary-dark);
+}
+
+.payment-status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  border: 1px solid transparent;
+}
+
+.pagamento-pendente {
+  background: #fff3d8;
+  color: #8b5b12;
+  border-color: rgba(139, 91, 18, 0.14);
+}
+
+.pagamento-aprovado {
+  background: #e8f7eb;
+  color: #2f7a42;
+  border-color: rgba(47, 122, 66, 0.14);
+}
+
+.pagamento-processamento {
+  background: #e8f1fb;
+  color: #3167a3;
+  border-color: rgba(49, 103, 163, 0.14);
+}
+
+.pagamento-recusado {
+  background: #fdeceb;
+  color: #a34d45;
+  border-color: rgba(163, 77, 69, 0.14);
+}
+
+.pagamento-cancelado {
+  background: #f2ece8;
+  color: #6e5a50;
+  border-color: rgba(110, 90, 80, 0.14);
+}
+
+.pagamento-reembolsado {
+  background: #eef5ef;
+  color: #53705b;
+  border-color: rgba(83, 112, 91, 0.14);
+}
+
+.pagamento-contestado {
+  background: #f8eaf3;
+  color: #8a4d73;
+  border-color: rgba(138, 77, 115, 0.14);
+}
+
 .order-items {
   display: grid;
   gap: 0.75rem;
