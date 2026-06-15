@@ -182,6 +182,74 @@ async function criarPedido(request, response) {
   }
 }
 
+async function listarPedidos(request, response) {
+  try {
+    const pedidosQuery = `
+      SELECT
+        p.id,
+        p.nome_cliente,
+        p.telefone,
+        p.tipo_recebimento,
+        p.cep,
+        p.rua,
+        p.numero,
+        p.bairro,
+        p.complemento,
+        p.referencia,
+        p.data_desejada,
+        p.horario_desejado,
+        p.observacoes,
+        p.subtotal,
+        p.frete,
+        p.total,
+        p.status,
+        p.criado_em,
+        COALESCE(
+          json_agg(
+            json_build_object(
+              'id', pi.id,
+              'produto_nome', pi.produto_nome,
+              'quantidade', pi.quantidade,
+              'preco_unitario', pi.preco_unitario,
+              'subtotal', pi.subtotal
+            )
+            ORDER BY pi.id
+          ) FILTER (WHERE pi.id IS NOT NULL),
+          '[]'::json
+        ) AS itens
+      FROM pedidos p
+      LEFT JOIN pedido_itens pi ON pi.pedido_id = p.id
+      GROUP BY p.id
+      ORDER BY p.criado_em DESC, p.id DESC;
+    `;
+
+    const resultado = await pool.query(pedidosQuery);
+
+    const pedidos = resultado.rows.map((pedido) => ({
+      ...pedido,
+      endereco: {
+        cep: pedido.cep,
+        rua: pedido.rua,
+        numero: pedido.numero,
+        bairro: pedido.bairro,
+        complemento: pedido.complemento,
+        referencia: pedido.referencia
+      }
+    }));
+
+    return response.json({
+      sucesso: true,
+      pedidos
+    });
+  } catch (error) {
+    return response.status(500).json({
+      sucesso: false,
+      mensagem: "Não foi possível carregar os pedidos agora."
+    });
+  }
+}
+
 module.exports = {
-  criarPedido
+  criarPedido,
+  listarPedidos
 };

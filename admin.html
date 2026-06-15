@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel de Pedidos | Rafa Delícias Artesanais</title>
+  <link rel="icon" type="image/png" href="./favicon.png">
+  <link rel="shortcut icon" href="./favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Serif+Text:ital@0;1&family=Manrope:wght@400;500;700;800&display=swap"
+    rel="stylesheet"
+  >
+  <link rel="stylesheet" href="./admin.css">
+</head>
+<body>
+  <main class="admin-page">
+    <section class="admin-shell">
+      <header class="admin-header">
+        <div>
+          <p class="admin-kicker">Rafa Delícias Artesanais</p>
+          <h1>Painel de Pedidos</h1>
+          <p class="admin-description">
+            Visualização inicial dos pedidos salvos no PostgreSQL.
+          </p>
+        </div>
+
+        <button class="refresh-button" id="refreshOrdersButton" type="button">
+          Atualizar pedidos
+        </button>
+      </header>
+
+      <section class="orders-panel" aria-labelledby="orders-title">
+        <div class="orders-heading">
+          <h2 id="orders-title">Pedidos registrados</h2>
+          <p id="ordersFeedback" class="orders-feedback">Carregando pedidos...</p>
+        </div>
+
+        <!-- Futuramente esta página deve ser protegida por autenticação antes de ir para produção. -->
+        <div class="orders-list" id="ordersList" aria-live="polite"></div>
+      </section>
+    </section>
+  </main>
+
+  <script src="./admin.js"></script>
+</body>
+</html>
