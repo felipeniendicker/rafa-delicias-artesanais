@@ -1,0 +1,12 @@
+{
+  "name": "rafa-delicias-artesanais",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Mini loja estática em HTML, CSS e JavaScript puro para a Rafa Delícias Artesanais.",
+  "scripts": {
+    "start": "serve -s . -l $PORT"
+  },
+  "dependencies": {
+    "serve": "^14.2.4"
+  }
+}
