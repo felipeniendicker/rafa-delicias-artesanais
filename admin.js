@@ -4,6 +4,13 @@ const refreshOrdersButton = document.querySelector("#refreshOrdersButton");
 const statusFilter = document.querySelector("#statusFilter");
 const searchFilter = document.querySelector("#searchFilter");
 const adminLogoutButton = document.querySelector("#adminLogoutButton");
+const dashboardFeedback = document.querySelector("#dashboardFeedback");
+const metricPedidosHoje = document.querySelector("#metricPedidosHoje");
+const metricValorVendidoHoje = document.querySelector("#metricValorVendidoHoje");
+const metricPedidosPendentes = document.querySelector("#metricPedidosPendentes");
+const metricEmProducao = document.querySelector("#metricEmProducao");
+const metricPagos = document.querySelector("#metricPagos");
+const metricEntregues = document.querySelector("#metricEntregues");
 const ADMIN_TOKEN_STORAGE_KEY = "rafaDeliciasAdminToken";
 const STATUS_OPTIONS = [
   { value: "recebido", label: "Recebido" },
@@ -62,6 +69,73 @@ function formatarMoeda(valor) {
     style: "currency",
     currency: "BRL"
   }).format(Number(valor || 0));
+}
+
+function atualizarDashboardNaTela(resumo) {
+  if (metricPedidosHoje) {
+    metricPedidosHoje.textContent = String(resumo.pedidosHoje ?? 0);
+  }
+
+  if (metricValorVendidoHoje) {
+    metricValorVendidoHoje.textContent = formatarMoeda(resumo.valorVendidoHoje ?? 0);
+  }
+
+  if (metricPedidosPendentes) {
+    metricPedidosPendentes.textContent = String(resumo.pedidosPendentes ?? 0);
+  }
+
+  if (metricEmProducao) {
+    metricEmProducao.textContent = String(resumo.emProducao ?? 0);
+  }
+
+  if (metricPagos) {
+    metricPagos.textContent = String(resumo.pagos ?? 0);
+  }
+
+  if (metricEntregues) {
+    metricEntregues.textContent = String(resumo.entregues ?? 0);
+  }
+}
+
+async function carregarDashboard() {
+  if (dashboardFeedback) {
+    dashboardFeedback.textContent = "Carregando resumo...";
+  }
+
+  try {
+    const response = await fetch("/api/admin/dashboard", {
+      headers: obterHeadersAutenticados()
+    });
+
+    if (tratarRespostaNaoAutorizada(response)) {
+      return;
+    }
+
+    const data = await response.json();
+
+    if (!response.ok || !data?.sucesso) {
+      throw new Error(data?.mensagem || "Não foi possível carregar o resumo agora.");
+    }
+
+    atualizarDashboardNaTela(data);
+
+    if (dashboardFeedback) {
+      dashboardFeedback.textContent = "Indicadores atualizados.";
+    }
+  } catch (error) {
+    atualizarDashboardNaTela({
+      pedidosHoje: 0,
+      valorVendidoHoje: 0,
+      pedidosPendentes: 0,
+      emProducao: 0,
+      pagos: 0,
+      entregues: 0
+    });
+
+    if (dashboardFeedback) {
+      dashboardFeedback.textContent = "Não foi possível carregar o resumo agora.";
+    }
+  }
 }
 
 function formatarData(data) {
@@ -357,6 +431,7 @@ async function carregarPedidos() {
 
 if (refreshOrdersButton) {
   refreshOrdersButton.addEventListener("click", () => {
+    carregarDashboard();
     carregarPedidos();
   });
 }
@@ -411,5 +486,6 @@ if (ordersList) {
 if (!obterTokenAdmin()) {
   redirecionarParaLogin();
 } else {
+  carregarDashboard();
   carregarPedidos();
 }

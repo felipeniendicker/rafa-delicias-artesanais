@@ -50,6 +50,47 @@
         </div>
       </header>
 
+      <section class="dashboard-panel" aria-labelledby="dashboard-title">
+        <div class="dashboard-heading">
+          <div>
+            <h2 id="dashboard-title">Resumo do dia</h2>
+            <p class="dashboard-feedback" id="dashboardFeedback">Carregando resumo...</p>
+          </div>
+        </div>
+
+        <div class="dashboard-grid" id="dashboardGrid">
+          <article class="dashboard-card">
+            <span class="dashboard-label">Pedidos hoje</span>
+            <strong class="dashboard-value" id="metricPedidosHoje">--</strong>
+          </article>
+
+          <article class="dashboard-card">
+            <span class="dashboard-label">Valor vendido hoje</span>
+            <strong class="dashboard-value" id="metricValorVendidoHoje">--</strong>
+          </article>
+
+          <article class="dashboard-card">
+            <span class="dashboard-label">Pendentes</span>
+            <strong class="dashboard-value" id="metricPedidosPendentes">--</strong>
+          </article>
+
+          <article class="dashboard-card">
+            <span class="dashboard-label">Em produção</span>
+            <strong class="dashboard-value" id="metricEmProducao">--</strong>
+          </article>
+
+          <article class="dashboard-card">
+            <span class="dashboard-label">Pagos</span>
+            <strong class="dashboard-value" id="metricPagos">--</strong>
+          </article>
+
+          <article class="dashboard-card">
+            <span class="dashboard-label">Entregues</span>
+            <strong class="dashboard-value" id="metricEntregues">--</strong>
+          </article>
+        </div>
+      </section>
+
       <section class="orders-panel" aria-labelledby="orders-title">
         <div class="orders-heading">
           <h2 id="orders-title">Pedidos registrados</h2>
