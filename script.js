@@ -7,6 +7,24 @@ const CONFIG = {
   nomeLoja: "Rafa Delícias Artesanais",
   whatsapp: "5512988970995",
   taxaEntregaPadrao: 8,
+  // Futuramente os horários também podem vir do painel administrativo.
+  horarioAtendimento: {
+    segundaASexta: {
+      dias: [1, 2, 3, 4, 5],
+      inicio: "08:00",
+      fim: "19:00"
+    },
+    sabado: {
+      dias: [6],
+      inicio: "08:00",
+      fim: "17:00"
+    },
+    domingo: {
+      dias: [0],
+      inicio: "10:00",
+      fim: "16:00"
+    }
+  },
   // Futuramente esta tabela pode vir do banco de dados ou do painel administrativo.
   fretesPorBairro: {
     centro: 5,
@@ -61,6 +79,9 @@ const addressFields = document.querySelector("#addressFields");
 const checkoutSubtotalElement = document.querySelector("#checkoutSubtotal");
 const checkoutShippingElement = document.querySelector("#checkoutShipping");
 const checkoutTotalElement = document.querySelector("#checkoutTotal");
+const checkoutOrderWarningElement = document.querySelector("#checkoutOrderWarning");
+const checkoutServiceStatusElement = document.querySelector("#checkoutServiceStatus");
+const checkoutServiceMessageElement = document.querySelector("#checkoutServiceMessage");
 const customerNameInput = document.querySelector("#customerName");
 const customerPhoneInput = document.querySelector("#customerPhone");
 const customerZipcodeInput = document.querySelector("#customerZipcode");
@@ -93,6 +114,86 @@ function formatarMoeda(valor) {
     style: "currency",
     currency: "BRL"
   }).format(valor);
+}
+
+function isProdutoSobEncomenda(produto) {
+  const identificador = `${produto?.id || ""} ${produto?.nome || ""}`.toLowerCase();
+
+  return identificador.includes("cupcake-artesanal")
+    || identificador.includes("cupcake artesanal")
+    || identificador.includes("bento-cake-artesanal")
+    || identificador.includes("bento cake artesanal");
+}
+
+function isGrandeQuantidade(produto) {
+  return Number(produto?.quantidade || 0) >= 12;
+}
+
+function pedidoExigeConfirmacaoEncomenda() {
+  return carrinho.some((produto) => isProdutoSobEncomenda(produto) || isGrandeQuantidade(produto));
+}
+
+function obterObservacaoEncomenda() {
+  if (!pedidoExigeConfirmacaoEncomenda()) {
+    return "";
+  }
+
+  return "📌 Observação sobre encomenda: Este pedido contém item sob encomenda ou grande quantidade. A Rafa Delícias Artesanais poderá entrar em contato para confirmar detalhes antes da produção.";
+}
+
+function converterHorarioParaMinutos(horario) {
+  const [horas, minutos] = String(horario || "0:0").split(":").map(Number);
+
+  return (horas * 60) + minutos;
+}
+
+function obterStatusAtendimento() {
+  const agora = new Date();
+  const diaSemana = agora.getDay();
+  const minutosAtuais = (agora.getHours() * 60) + agora.getMinutes();
+  const faixasHorario = Object.values(CONFIG.horarioAtendimento || {});
+
+  const faixaAtual = faixasHorario.find((faixa) => {
+    if (!Array.isArray(faixa.dias) || !faixa.dias.includes(diaSemana)) {
+      return false;
+    }
+
+    const inicio = converterHorarioParaMinutos(faixa.inicio);
+    const fim = converterHorarioParaMinutos(faixa.fim);
+
+    return minutosAtuais >= inicio && minutosAtuais <= fim;
+  });
+
+  if (faixaAtual) {
+    return {
+      aberto: true,
+      statusCheckout: "🟢 Estamos em horário de atendimento.",
+      mensagemCheckout: "Seu pedido será preparado normalmente.",
+      mensagemWhatsApp: "🟢 Atendimento em horário normal.\nSeu pedido será preparado normalmente.",
+      mensagemPagamento: "🟢 Seu pedido será encaminhado para pagamento e preparado normalmente."
+    };
+  }
+
+  return {
+    aberto: false,
+    statusCheckout: "🕒 No momento estamos fora do horário de atendimento.",
+    mensagemCheckout: "Você pode realizar seu pedido normalmente, e ele será confirmado e preparado no próximo expediente.",
+    mensagemWhatsApp: "🕒 Pedido realizado fora do horário de atendimento.\n\nSeu pedido foi recebido com sucesso e será confirmado no próximo expediente.",
+    mensagemPagamento: "🕒 Seu pedido será encaminhado para pagamento.\n\nCaso o pagamento seja realizado fora do horário de atendimento, a confirmação e preparação ocorrerão no próximo expediente."
+  };
+}
+
+function atualizarStatusAtendimentoCheckout() {
+  if (!checkoutServiceStatusElement || !checkoutServiceMessageElement) {
+    return;
+  }
+
+  const statusAtendimento = obterStatusAtendimento();
+
+  checkoutServiceStatusElement.textContent = statusAtendimento.statusCheckout;
+  checkoutServiceMessageElement.textContent = statusAtendimento.mensagemCheckout;
+  checkoutServiceStatusElement.classList.toggle("is-open", statusAtendimento.aberto);
+  checkoutServiceStatusElement.classList.toggle("is-closed", !statusAtendimento.aberto);
 }
 
 function obterTipoRecebimentoSelecionado() {
@@ -433,6 +534,8 @@ function montarLinhasPedido() {
 
 function montarPayloadPedidoBackend(dadosCheckout) {
   const tipoRecebimentoFormatado = dadosCheckout.tipoRecebimento === "entrega" ? "Entrega" : "Retirada";
+  const observacaoEncomenda = obterObservacaoEncomenda();
+  const observacoesCompletas = [dadosCheckout.observacoes, observacaoEncomenda].filter(Boolean).join("\n\n");
 
   return {
     nome_cliente: dadosCheckout.nome,
@@ -446,7 +549,7 @@ function montarPayloadPedidoBackend(dadosCheckout) {
     referencia: dadosCheckout.referencia || null,
     data_desejada: dadosCheckout.dataDesejada,
     horario_desejado: dadosCheckout.horarioDesejado,
-    observacoes: dadosCheckout.observacoes || null,
+    observacoes: observacoesCompletas || null,
     subtotal: calcularSubtotalProdutos(),
     frete: calcularFrete(),
     total: calcularTotalFinal(),
@@ -467,6 +570,8 @@ function montarContextoFinalizacao(dadosCheckout) {
   const subtotalProdutos = calcularSubtotalProdutos();
   const frete = calcularFrete();
   const totalPedido = calcularTotalFinal();
+  const statusAtendimento = obterStatusAtendimento();
+  const observacaoEncomenda = obterObservacaoEncomenda();
   const payloadPedido = montarPayloadPedidoBackend(dadosCheckout);
   const listaProdutos = montarLinhasPedido();
   const recebimento = dadosCheckout.tipoRecebimento === "entrega" ? "Entrega" : "Retirada";
@@ -476,17 +581,22 @@ function montarContextoFinalizacao(dadosCheckout) {
   const observacoes = dadosCheckout.observacoes
     ? `\nObservações: ${dadosCheckout.observacoes}`
     : "";
+  const observacaoEncomendaMensagem = observacaoEncomenda
+    ? `\n\n${observacaoEncomenda}`
+    : "";
 
   return {
     dadosCheckout,
     subtotalProdutos,
     frete,
     totalPedido,
+    statusAtendimento,
     payloadPedido,
     listaProdutos,
     recebimento,
     enderecoEntrega,
     observacoes,
+    observacaoEncomendaMensagem,
     assinatura: gerarAssinaturaPedido(payloadPedido)
   };
 }
@@ -608,7 +718,7 @@ function atualizarEstadoBotoesFinalizacao() {
 
 function abrirWhatsAppComContexto(contexto) {
   const numeroPedidoMensagem = contexto.pedidoId ? `Número do pedido: #${contexto.pedidoId}\n` : "";
-  const mensagem = `Olá! Vim pelo site da ${CONFIG.nomeLoja} e gostaria de fazer um pedido:\n\n${numeroPedidoMensagem}Nome: ${contexto.dadosCheckout.nome}\nTelefone: ${contexto.dadosCheckout.telefone}\nTipo de recebimento: ${contexto.recebimento}${contexto.enderecoEntrega}\n\nData desejada: ${formatarDataParaMensagem(contexto.dadosCheckout.dataDesejada)}\nHorário desejado: ${contexto.dadosCheckout.horarioDesejado}${contexto.observacoes}\n\nItens do pedido:\n${contexto.listaProdutos}\n\nSubtotal dos produtos: ${formatarMoeda(contexto.subtotalProdutos)}\nFrete: ${formatarMoeda(contexto.frete)}\nTotal final: ${formatarMoeda(contexto.totalPedido)}\n\nGostaria de confirmar a disponibilidade e combinar a ${contexto.dadosCheckout.tipoRecebimento === "entrega" ? "entrega" : "retirada"}.\n\n---\n\nPedido realizado pelo site da ${CONFIG.nomeLoja}.`;
+  const mensagem = `Olá! Vim pelo site da ${CONFIG.nomeLoja} e gostaria de fazer um pedido:\n\n${numeroPedidoMensagem}Nome: ${contexto.dadosCheckout.nome}\nTelefone: ${contexto.dadosCheckout.telefone}\nTipo de recebimento: ${contexto.recebimento}${contexto.enderecoEntrega}\n\nData desejada: ${formatarDataParaMensagem(contexto.dadosCheckout.dataDesejada)}\nHorário desejado: ${contexto.dadosCheckout.horarioDesejado}${contexto.observacoes}\n\nItens do pedido:\n${contexto.listaProdutos}\n\nSubtotal dos produtos: ${formatarMoeda(contexto.subtotalProdutos)}\nFrete: ${formatarMoeda(contexto.frete)}\nTotal final: ${formatarMoeda(contexto.totalPedido)}${contexto.observacaoEncomendaMensagem}\n\nGostaria de confirmar a disponibilidade e combinar a ${contexto.dadosCheckout.tipoRecebimento === "entrega" ? "entrega" : "retirada"}.\n\n---\n\nPedido realizado pelo site da ${CONFIG.nomeLoja}.\n\n${contexto.statusAtendimento.mensagemWhatsApp}`;
   const mensagemCodificada = encodeURIComponent(mensagem);
   const urlWhatsApp = `https://wa.me/${CONFIG.whatsapp}?text=${mensagemCodificada}`;
 
@@ -737,6 +847,10 @@ function atualizarCarrinho() {
 
   if (checkoutTotalElement) {
     checkoutTotalElement.textContent = formatarMoeda(totalPedido);
+  }
+
+  if (checkoutOrderWarningElement) {
+    checkoutOrderWarningElement.classList.toggle("is-hidden", !pedidoExigeConfirmacaoEncomenda());
   }
 
   if (floatingCartCount) {
@@ -877,7 +991,10 @@ if (payOnlineButton) {
         throw new Error("Não foi possível iniciar o pagamento online agora.");
       }
 
-      window.location.href = preferencia.initPoint;
+      atualizarFeedbackFinalizacao(pedidoFinalizacaoAtual.statusAtendimento.mensagemPagamento);
+      window.setTimeout(() => {
+        window.location.href = preferencia.initPoint;
+      }, 1100);
     } catch (error) {
       atualizarFeedbackFinalizacao("Não foi possível iniciar o pagamento online agora. Você ainda pode finalizar pelo WhatsApp.");
     }
@@ -922,4 +1039,9 @@ carregarCarrinho();
 atualizarCamposEntrega();
 atualizarCarrinho();
 atualizarMensagemFrete();
+atualizarStatusAtendimentoCheckout();
 alternarBotaoTopo();
+
+window.setInterval(() => {
+  atualizarStatusAtendimentoCheckout();
+}, 60000);

@@ -583,9 +583,11 @@
               </div>
               <div class="product-content">
                 <h4>Cupcake Artesanal</h4>
+                <span class="product-badge">📅 Sob encomenda</span>
                 <p>Massa leve com cobertura delicada para momentos doces e especiais.</p>
                 <p class="product-note">A partir de R$ 7,00</p>
                 <p class="product-note">Pedido mínimo: 6 unidades</p>
+                <p class="product-note">Pedido mínimo de 6 unidades. Grandes quantidades podem exigir confirmação.</p>
                 <div class="product-meta">
                   <strong class="product-price">A partir de R$ 7,00</strong>
                   <button class="product-button add-to-cart-button" type="button" data-id="cupcake-artesanal" data-nome="Cupcake Artesanal" data-preco="7.00" data-minimo="6">Adicionar ao pedido</button>
@@ -615,8 +617,10 @@
               </div>
               <div class="product-content">
                 <h4>Bento Cake Artesanal</h4>
+                <span class="product-badge">📅 Sob encomenda</span>
                 <p>Sabores e decoração sob consulta.</p>
                 <p class="product-note">A partir de R$ 50,00</p>
+                <p class="product-note">Decoração e detalhes serão confirmados após o pedido.</p>
                 <div class="product-meta">
                   <strong class="product-price">A partir de R$ 50,00</strong>
                   <button class="product-button add-to-cart-button" type="button" data-id="bento-cake-artesanal" data-nome="Bento Cake Artesanal" data-preco="50.00">Adicionar ao pedido</button>
@@ -782,6 +786,10 @@
         <aside class="checkout-summary" aria-label="Resumo da finalização do pedido">
           <div class="summary-card checkout-summary-card">
             <h3>Resumo da finalização</h3>
+            <div class="service-status-card" aria-live="polite">
+              <p class="service-status-title" id="checkoutServiceStatus">🟢 Estamos em horário de atendimento.</p>
+              <p class="service-status-message" id="checkoutServiceMessage">Seu pedido será preparado normalmente.</p>
+            </div>
             <div class="summary-row">
               <span>Subtotal dos produtos</span>
               <strong id="checkoutSubtotal">R$ 0,00</strong>
@@ -794,12 +802,26 @@
               <span>Total final</span>
               <strong id="checkoutTotal">R$ 0,00</strong>
             </div>
+            <div class="checkout-order-warning is-hidden" id="checkoutOrderWarning">
+              <strong>📌 Atenção</strong>
+              <p>Seu pedido contém produto sob encomenda. Nossa equipe poderá entrar em contato para confirmar detalhes como quantidade, decoração, sabores ou disponibilidade antes da produção.</p>
+            </div>
+            <div class="checkout-important-note">
+              <strong>📌 Informação importante</strong>
+              <p>Pedidos realizados fora do horário de atendimento ou produtos sob encomenda poderão ser confirmados pela nossa equipe antes da produção.</p>
+            </div>
             <button class="finalize-button" id="finalizeOrderButton" type="button" aria-label="Finalizar pedido pelo WhatsApp">
               Finalizar pedido
             </button>
             <p class="summary-note">
               O pedido será enviado pelo WhatsApp com seus dados, forma de recebimento e resumo completo.
             </p>
+            <div class="checkout-hours-footer">
+              <strong>🕒 Horário de atendimento</strong>
+              <p>Segunda a Sexta: 08:00 às 19:00</p>
+              <p>Sábado: 08:00 às 17:00</p>
+              <p>Domingo: 10:00 às 16:00</p>
+            </div>
           </div>
         </aside>
       </div>

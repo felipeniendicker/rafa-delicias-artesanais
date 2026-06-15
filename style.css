@@ -457,6 +457,19 @@ button {
   font-weight: 700;
 }
 
+.product-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 0.25rem;
+  margin-bottom: 0.7rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--primary-dark);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
 .product-meta {
   display: flex;
   flex-direction: column;
@@ -695,6 +708,67 @@ button {
 .summary-note {
   margin: 0.9rem 0 0;
   font-size: 0.95rem;
+}
+
+.service-status-card,
+.checkout-important-note,
+.checkout-hours-footer {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid rgba(141, 86, 61, 0.14);
+  border-radius: var(--radius-md);
+  background: #fffdfa;
+}
+
+.checkout-order-warning {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid rgba(187, 122, 93, 0.22);
+  border-radius: var(--radius-md);
+  background: #fff7ef;
+}
+
+.checkout-order-warning.is-hidden {
+  display: none;
+}
+
+.service-status-title,
+.checkout-important-note strong,
+.checkout-hours-footer strong {
+  display: block;
+  color: var(--primary-dark);
+}
+
+.checkout-order-warning strong {
+  display: block;
+  color: #8b4a3f;
+}
+
+.service-status-title {
+  margin: 0;
+  font-weight: 800;
+}
+
+.service-status-title.is-open {
+  color: #2f7a42;
+}
+
+.service-status-title.is-closed {
+  color: #8b5b12;
+}
+
+.service-status-message,
+.checkout-important-note p,
+.checkout-hours-footer p {
+  margin: 0.55rem 0 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.checkout-order-warning p {
+  margin: 0.55rem 0 0;
+  color: var(--muted);
+  line-height: 1.7;
 }
 
 .checkout-form {
