@@ -6,7 +6,8 @@
 const CONFIG = {
   nomeLoja: "Rafa Delícias Artesanais",
   whatsapp: "5512988970995",
-  taxaEntregaPadrao: 8
+  taxaEntregaPadrao: 8,
+  apiBaseUrl: "/api"
 };
 
 // Faz o botão principal levar o usuário até a seção inicial do cardápio.
@@ -339,6 +340,60 @@ function montarLinhasPedido() {
   }).join("\n");
 }
 
+function montarPayloadPedidoBackend(dadosCheckout) {
+  const tipoRecebimentoFormatado = dadosCheckout.tipoRecebimento === "entrega" ? "Entrega" : "Retirada";
+
+  return {
+    nome_cliente: dadosCheckout.nome,
+    telefone: dadosCheckout.telefone,
+    tipo_recebimento: tipoRecebimentoFormatado,
+    cep: dadosCheckout.cep || null,
+    rua: dadosCheckout.rua || null,
+    numero: dadosCheckout.numero || null,
+    bairro: dadosCheckout.bairro || null,
+    complemento: dadosCheckout.complemento || null,
+    referencia: dadosCheckout.referencia || null,
+    data_desejada: dadosCheckout.dataDesejada,
+    horario_desejado: dadosCheckout.horarioDesejado,
+    observacoes: dadosCheckout.observacoes || null,
+    subtotal: calcularSubtotalProdutos(),
+    frete: calcularFrete(),
+    total: calcularTotalFinal(),
+    itens: carrinho.map((produto) => ({
+      produto_nome: produto.nome,
+      quantidade: produto.quantidade,
+      preco_unitario: produto.preco,
+      subtotal: produto.preco * produto.quantidade
+    }))
+  };
+}
+
+// Envia o pedido para a API em JSON e devolve o número criado no banco.
+// Se a API falhar, a função lança erro para o fluxo principal decidir o fallback.
+async function salvarPedidoBackend(dadosPedido) {
+  const response = await fetch(`${CONFIG.apiBaseUrl}/pedidos`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(dadosPedido)
+  });
+
+  let responseData = null;
+
+  try {
+    responseData = await response.json();
+  } catch (error) {
+    responseData = null;
+  }
+
+  if (!response.ok || !responseData?.sucesso) {
+    throw new Error(responseData?.mensagem || "Não foi possível salvar o pedido no backend.");
+  }
+
+  return responseData.pedidoId;
+}
+
 // Salva o estado atual do carrinho no navegador para manter o pedido mesmo após recarregar a página.
 function salvarCarrinho() {
   try {
@@ -400,7 +455,7 @@ function limparCarrinho() {
 
 // Gera a mensagem completa e abre o WhatsApp com encodeURIComponent, sem limpar o carrinho.
 // A nova etapa de checkout complementa o pedido com dados do cliente, entrega ou retirada e observações.
-function enviarPedidoParaWhatsApp() {
+async function enviarPedidoParaWhatsApp() {
   if (carrinho.length === 0) {
     alert("Adicione pelo menos um produto antes de finalizar o pedido.");
     return;
@@ -417,6 +472,7 @@ function enviarPedidoParaWhatsApp() {
   const subtotalProdutos = calcularSubtotalProdutos();
   const frete = calcularFrete();
   const totalPedido = calcularTotalFinal();
+  const payloadPedido = montarPayloadPedidoBackend(dadosCheckout);
   const listaProdutos = montarLinhasPedido();
   const recebimento = dadosCheckout.tipoRecebimento === "entrega" ? "Entrega" : "Retirada";
   const enderecoEntrega = dadosCheckout.tipoRecebimento === "entrega"
@@ -425,7 +481,16 @@ function enviarPedidoParaWhatsApp() {
   const observacoes = dadosCheckout.observacoes
     ? `\nObservações: ${dadosCheckout.observacoes}`
     : "";
-  const mensagem = `Olá! Vim pelo site da ${CONFIG.nomeLoja} e gostaria de fazer um pedido:\n\nNome: ${dadosCheckout.nome}\nTelefone: ${dadosCheckout.telefone}\nTipo de recebimento: ${recebimento}${enderecoEntrega}\n\nData desejada: ${formatarDataParaMensagem(dadosCheckout.dataDesejada)}\nHorário desejado: ${dadosCheckout.horarioDesejado}${observacoes}\n\nItens do pedido:\n${listaProdutos}\n\nSubtotal dos produtos: ${formatarMoeda(subtotalProdutos)}\nFrete: ${formatarMoeda(frete)}\nTotal final: ${formatarMoeda(totalPedido)}\n\nGostaria de confirmar a disponibilidade e combinar a ${dadosCheckout.tipoRecebimento === "entrega" ? "entrega" : "retirada"}.\n\n---\n\nPedido realizado pelo site da ${CONFIG.nomeLoja}.`;
+  let numeroPedidoMensagem = "";
+
+  try {
+    const pedidoId = await salvarPedidoBackend(payloadPedido);
+    numeroPedidoMensagem = `Número do pedido: #${pedidoId}\n`;
+  } catch (error) {
+    alert("Não foi possível salvar o pedido no sistema agora. Você ainda pode finalizar normalmente pelo WhatsApp.");
+  }
+
+  const mensagem = `Olá! Vim pelo site da ${CONFIG.nomeLoja} e gostaria de fazer um pedido:\n\n${numeroPedidoMensagem}Nome: ${dadosCheckout.nome}\nTelefone: ${dadosCheckout.telefone}\nTipo de recebimento: ${recebimento}${enderecoEntrega}\n\nData desejada: ${formatarDataParaMensagem(dadosCheckout.dataDesejada)}\nHorário desejado: ${dadosCheckout.horarioDesejado}${observacoes}\n\nItens do pedido:\n${listaProdutos}\n\nSubtotal dos produtos: ${formatarMoeda(subtotalProdutos)}\nFrete: ${formatarMoeda(frete)}\nTotal final: ${formatarMoeda(totalPedido)}\n\nGostaria de confirmar a disponibilidade e combinar a ${dadosCheckout.tipoRecebimento === "entrega" ? "entrega" : "retirada"}.\n\n---\n\nPedido realizado pelo site da ${CONFIG.nomeLoja}.`;
   const mensagemCodificada = encodeURIComponent(mensagem);
   const urlWhatsApp = `https://wa.me/${CONFIG.whatsapp}?text=${mensagemCodificada}`;
 
@@ -567,8 +632,8 @@ if (cartItemsContainer) {
 }
 
 if (finalizeOrderButton) {
-  finalizeOrderButton.addEventListener("click", () => {
-    enviarPedidoParaWhatsApp();
+  finalizeOrderButton.addEventListener("click", async () => {
+    await enviarPedidoParaWhatsApp();
   });
 }
 
