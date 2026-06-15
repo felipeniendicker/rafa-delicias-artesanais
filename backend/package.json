@@ -1,0 +1,16 @@
+{
+  "name": "rafa-delicias-artesanais-backend",
+  "version": "1.0.0",
+  "description": "Backend inicial em Node.js e Express para a Rafa Delícias Artesanais.",
+  "main": "server.js",
+  "scripts": {
+    "db:schema": "node database/runSchema.js",
+    "dev": "node server.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "pg": "^8.12.0"
+  }
+}
