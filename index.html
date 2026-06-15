@@ -14,13 +14,19 @@
     href="https://fonts.googleapis.com/css2?family=DM+Serif+Text:ital@0;1&family=Manrope:wght@400;500;700;800&display=swap"
     rel="stylesheet"
   >
+  <link rel="icon" type="image/png" href="./favicon.png">
+  <link rel="shortcut icon" href="./favicon.png">
   <link rel="stylesheet" href="./style.css">
 </head>
 <body>
   <!-- Cabeçalho principal com navegação funcional para facilitar a exploração da loja -->
   <header class="hero">
     <nav class="topbar container" aria-label="Navegação principal">
-      <a class="brand" href="#inicio">Rafa Delícias Artesanais</a>
+      <!-- Logo oficial integrada ao topo para reforçar a identidade visual sem alterar a navegação -->
+      <a class="brand" href="#inicio" aria-label="Rafa Delícias Artesanais - voltar ao início">
+        <img class="brand-logo" src="./favicon.png" alt="Logo da Rafa Delícias Artesanais">
+        <span class="brand-text">Rafa Delícias Artesanais</span>
+      </a>
       <div class="topbar-actions">
         <div class="nav-links">
           <a class="nav-link" href="#inicio">Início</a>
@@ -37,6 +43,8 @@
 
     <div class="hero-content container" id="inicio">
       <div class="hero-copy">
+        <!-- A mesma arte também aparece na abertura para apresentar a marca logo no primeiro bloco -->
+        <img class="hero-logo" src="./favicon.png" alt="Identidade visual da Rafa Delícias Artesanais">
         <p class="eyebrow">Mini loja online artesanal</p>
         <h1>Rafa Delícias Artesanais</h1>
         <p class="slogan">
