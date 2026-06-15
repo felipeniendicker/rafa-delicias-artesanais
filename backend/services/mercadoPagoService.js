@@ -32,6 +32,18 @@ async function criarPreferenciaPagamento(pedido) {
     currency_id: "BRL",
     unit_price: Number(item.preco_unitario)
   }));
+  const valorFrete = Number(pedido.frete || 0);
+
+  // O frete entra como item separado para manter consistência entre checkout, banco e Mercado Pago.
+  // Em retirada, ou quando o frete é zero, esse item não é enviado.
+  if (valorFrete > 0) {
+    itensMercadoPago.push({
+      title: "Taxa de entrega",
+      quantity: 1,
+      currency_id: "BRL",
+      unit_price: valorFrete
+    });
+  }
 
   const preferenceResponse = await preference.create({
     body: {

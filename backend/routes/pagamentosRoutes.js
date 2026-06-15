@@ -116,6 +116,8 @@ router.post("/criar-preferencia", async (request, response) => {
         id,
         nome_cliente,
         telefone,
+        tipo_recebimento,
+        frete,
         total
       FROM pedidos
       WHERE id = $1;
