@@ -1098,9 +1098,11 @@ function montarContextoFinalizacao(dadosCheckout) {
 
 function atualizarEstadoBotoesFinalizacao() {
   if (payOnlineButton) {
-    const podePagarOnline = Boolean(pedidoFinalizacaoAtual?.pedidoId) && pedidoFinalizacaoAtual?.freteInfo?.atendido !== false;
+    const entregaNaoAtendida = pedidoFinalizacaoAtual?.dadosCheckout?.tipoRecebimento === "entrega"
+      && pedidoFinalizacaoAtual?.freteInfo?.atendido === false;
+    const podePagarOnline = Boolean(pedidoFinalizacaoAtual?.pedidoId) && !entregaNaoAtendida;
     payOnlineButton.disabled = !podePagarOnline;
-    payOnlineButton.classList.toggle("is-hidden", pedidoFinalizacaoAtual?.freteInfo?.atendido === false);
+    payOnlineButton.classList.toggle("is-hidden", entregaNaoAtendida);
   }
 }
 
